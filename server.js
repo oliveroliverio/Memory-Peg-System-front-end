@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 8080;
+const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -11,8 +12,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Proxy the backend data to avoid CORS issues from the browser
 app.get('/api/getCharacters', async (req, res) => {
     try {
-        // The backend runs on port 3000
-        const response = await fetch('http://localhost:3000/getCharacters');
+        // The backend URL is configurable via environment variables
+        const response = await fetch(`${backendUrl}/getCharacters`);
         if (!response.ok) {
             throw new Error(`Backend responded with status: ${response.status}`);
         }

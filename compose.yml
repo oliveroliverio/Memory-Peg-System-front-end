@@ -1,0 +1,13 @@
+services:
+  memory-peg-frontend:
+    build: .
+    container_name: memory-peg-frontend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      # By default, use localhost:3000 assuming the backend runs on the same Raspberry Pi host
+      - BACKEND_URL=http://localhost:3000
+    restart: unless-stopped
+    # Use host network on Linux/Raspberry Pi so localhost:3000 works out of the box for the backend
+    network_mode: "host"
