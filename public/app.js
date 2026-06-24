@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // DOM Elements
     const bannerTitleEl = document.getElementById('banner-title');
+    const bannerTimeCharacterEl = document.getElementById('banner-time-character');
     const bannerSubtitleEl = document.getElementById('banner-subtitle');
 
     const weekNumEl = document.getElementById('week-num');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Populate Banner Data
             bannerTitleEl.textContent = data.weekCreature.creature;
+            bannerTimeCharacterEl.textContent = data.timeCharacter.character;
             bannerSubtitleEl.textContent = `Week ${data.weekCreature.weekFormatted}`;
             
             // Populate Week Data

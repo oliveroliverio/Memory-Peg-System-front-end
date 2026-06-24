@@ -40,3 +40,10 @@
 - **Why**: The user encountered several tricky issues setting up both frontend and backend on the Pi (stale systemd service blocking port 3000, PM2 crash loops, Node.js IPv6 localhost bug).
 - **What Changed**:
   - `@Docs/Troubleshooting-Raspberry-Pi-Deployment.md`: Documented the entire troubleshooting process, including how to use `ss` to find rogue processes, killing them by PID, and fixing the IPv6 `localhost` bug by switching to `127.0.0.1`.
+
+## FEAT: Add time character to hero banner (2026-06-24)
+- **Why**: The user wanted the time character to be displayed on the hero banner as a subtitle to the week creature, while keeping the week number displayed as normal.
+- **What Changed**:
+  - `public/index.html`: Added a new `<h3>` element with id `banner-time-character`.
+  - `public/style.css`: Added a new `.banner-sub-title` class to style the time character subtitle.
+  - `public/app.js`: Updated the frontend logic to grab the time character element and populate its text content with `data.timeCharacter.character`.
