@@ -35,3 +35,8 @@
 - **Why**: The user's Raspberry Pi OS (Trixie) didn't have a supported Docker release yet, so they needed an alternative method to run the app 24/7 without Docker.
 - **What Changed**:
   - `@Docs/Raspberry-Pi-Deployment-PM2.md`: Created a new guide using `pm2`, the industry-standard Node.js process manager, for ensuring the server runs 24/7 and auto-restarts on reboot.
+
+## DOCS: Add troubleshooting guide for Raspberry Pi deployment (2026-06-24)
+- **Why**: The user encountered several tricky issues setting up both frontend and backend on the Pi (stale systemd service blocking port 3000, PM2 crash loops, Node.js IPv6 localhost bug).
+- **What Changed**:
+  - `@Docs/Troubleshooting-Raspberry-Pi-Deployment.md`: Documented the entire troubleshooting process, including how to use `ss` to find rogue processes, killing them by PID, and fixing the IPv6 `localhost` bug by switching to `127.0.0.1`.
