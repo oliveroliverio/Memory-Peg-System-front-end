@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('error-message');
 
     // DOM Elements
+    const bannerTitleEl = document.getElementById('banner-title');
+    const bannerSubtitleEl = document.getElementById('banner-subtitle');
+
     const weekNumEl = document.getElementById('week-num');
     const weekCreatureEl = document.getElementById('week-creature');
     const weekDescEl = document.getElementById('week-desc');
@@ -28,6 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hide loader, show content
             loader.style.display = 'none';
             dashboardContent.style.display = 'flex';
+            
+            // Populate Banner Data
+            bannerTitleEl.textContent = data.weekCreature.creature;
+            bannerSubtitleEl.textContent = `Week ${data.weekCreature.weekFormatted}`;
             
             // Populate Week Data
             weekNumEl.textContent = data.weekCreature.weekFormatted;

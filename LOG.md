@@ -24,3 +24,9 @@
   - `.dockerignore`: Included node_modules, git directories, and the zip archive to keep image size small.
   - `server.js`: Refactored to use the `BACKEND_URL` environment variable for flexibility (defaulting to localhost:3000).
   - `@Docs/Raspberry-Pi-Deployment.md`: Drafted complete, step-by-step documentation on deploying the app.
+
+## FEAT: Update banner text to show Week Character dynamically (2026-06-24)
+- **Why**: The user requested that the hero banner display the current Week Character name and its week number instead of generic placeholder text.
+- **What Changed**:
+  - `public/index.html`: Added `id="banner-title"` and `id="banner-subtitle"` to the banner text elements.
+  - `public/app.js`: Hooked up the new DOM elements to populate with the fetched API data (`data.weekCreature.creature` and `data.weekCreature.weekFormatted`).
