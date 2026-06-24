@@ -10,3 +10,8 @@
   - `public/banner.png`: Generated an AI banner showing a mystical memory palace for the hero section.
   - `package.json`: Initialized npm and installed `express`, `cors` and `nodemon`.
   - `.gitignore`, `.env.example`, `README.md`: Initialized standard project files.
+
+## BUGFIX: Fix Express router syntax (2026-06-24)
+- **Why**: Express 5 enforces strict parsing on `app.get('*')`, resulting in a `PathError`.
+- **What Changed**:
+  - `server.js`: Changed `app.get('*', ...)` to a middleware `app.use((req, res) => ...)` to catch all remaining routes gracefully and serve the Single Page Application.

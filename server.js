@@ -25,7 +25,7 @@ app.get('/api/getCharacters', async (req, res) => {
 });
 
 // Serve the SPA for /getCharacters and any other route
-app.get('*', (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
