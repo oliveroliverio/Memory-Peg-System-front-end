@@ -30,3 +30,8 @@
 - **What Changed**:
   - `public/index.html`: Added `id="banner-title"` and `id="banner-subtitle"` to the banner text elements.
   - `public/app.js`: Hooked up the new DOM elements to populate with the fetched API data (`data.weekCreature.creature` and `data.weekCreature.weekFormatted`).
+
+## DOCS: Add non-Docker Raspberry Pi deployment guide (2026-06-24)
+- **Why**: The user's Raspberry Pi OS (Trixie) didn't have a supported Docker release yet, so they needed an alternative method to run the app 24/7 without Docker.
+- **What Changed**:
+  - `@Docs/Raspberry-Pi-Deployment-PM2.md`: Created a new guide using `pm2`, the industry-standard Node.js process manager, for ensuring the server runs 24/7 and auto-restarts on reboot.
