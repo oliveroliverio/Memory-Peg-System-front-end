@@ -15,3 +15,12 @@
 - **Why**: Express 5 enforces strict parsing on `app.get('*')`, resulting in a `PathError`.
 - **What Changed**:
   - `server.js`: Changed `app.get('*', ...)` to a middleware `app.use((req, res) => ...)` to catch all remaining routes gracefully and serve the Single Page Application.
+
+## FEAT: Add Docker setup for Raspberry Pi deployment (2026-06-24)
+- **Why**: The user wanted production-ready instructions and a deployment strategy to keep the app running 24/7 on a Raspberry Pi.
+- **What Changed**:
+  - `Dockerfile`: Created a minimal Docker image based on `node:20-alpine`.
+  - `compose.yml`: Set up a simple Docker Compose file using host networking so that it seamlessly communicates with the backend on `localhost:3000`.
+  - `.dockerignore`: Included node_modules, git directories, and the zip archive to keep image size small.
+  - `server.js`: Refactored to use the `BACKEND_URL` environment variable for flexibility (defaulting to localhost:3000).
+  - `@Docs/Raspberry-Pi-Deployment.md`: Drafted complete, step-by-step documentation on deploying the app.
