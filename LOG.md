@@ -47,3 +47,15 @@
   - `public/index.html`: Added a new `<h3>` element with id `banner-time-character`.
   - `public/style.css`: Added a new `.banner-sub-title` class to style the time character subtitle.
   - `public/app.js`: Updated the frontend logic to grab the time character element and populate its text content with `data.timeCharacter.character`.
+
+## FEAT: Dynamic quadrant-boundary refresh for time_character, week_creature, day_theme (2026-07-01)
+- **Why**: The user requested the frontend to automatically update to the correct time character, week creature, and day theme as each 15-minute quadrant boundary passes (:00, :15, :30, :45), without constant polling.
+- **Strategy**: Chained `setTimeout` — calculate exact ms to the next quadrant, fire once, re-fetch `/api/getCharacters`, repopulate the DOM, then chain the next timer. Max 4 wakeups per hour, zero ms polling.
+- **What Changed**:
+  - `public/app.js`:
+    - Extracted `populateUI(data)` helper to avoid duplicate DOM-write logic.
+    - Added `msUntilNextQuadrant()`: computes precise ms until the next :00/:15/:30/:45 boundary (+500ms buffer so backend clock has ticked over).
+    - Added `refreshAtQuadrant()`: fetches API, calls `populateUI`, then chains next refresh.
+    - Added `scheduleNextRefresh()`: arms a single one-shot `setTimeout`.
+    - Initial load path unchanged — fetch on `DOMContentLoaded`, then arm first timer.
+
