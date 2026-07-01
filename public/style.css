@@ -261,3 +261,88 @@ h2 {
         grid-column: 1 / -1;
     }
 }
+
+/* ── Quadrant Clock ─────────────────────────────────────────────────────── */
+
+/* Flex row holding the character name + clock side-by-side */
+.time-character-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.time-character-row h2 {
+    margin-bottom: 0;
+    flex: 1 1 auto;
+}
+
+/* SVG clock sizing */
+.quadrant-clock {
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.4));
+}
+
+/* Inactive quadrant sectors — very subtle fill */
+.quadrant-sector {
+    fill: rgba(255, 255, 255, 0.04);
+    transition: fill 0.4s ease;
+}
+
+/* Active quadrant — vibrant purple glow */
+.quadrant-sector.active {
+    fill: rgba(139, 92, 246, 0.35);
+    filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.6));
+}
+
+/* Clock outer rim */
+.clock-rim {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.18);
+    stroke-width: 1.5;
+}
+
+/* Faint lines separating the 4 quadrants */
+.quadrant-divider {
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 0.75;
+}
+
+/* Bold tick marks at 12, 3, 6, 9 */
+.hour-tick {
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* Shared hand style */
+.clock-hand {
+    stroke-linecap: round;
+}
+
+/* Hour hand — short, thick, white */
+.clock-hand.hour-hand {
+    stroke: #ffffff;
+    stroke-width: 3.5;
+}
+
+/* Minute hand — longer, thinner, accent purple */
+.clock-hand.minute-hand {
+    stroke: var(--primary-color);
+    stroke-width: 2.5;
+}
+
+/* Center pivot dot */
+.clock-center {
+    fill: #ffffff;
+}
+
+@media (min-width: 768px) {
+    .quadrant-clock {
+        width: 76px;
+        height: 76px;
+    }
+}
+

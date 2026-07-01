@@ -43,6 +43,50 @@ document.addEventListener('DOMContentLoaded', () => {
         computedTimeEl.textContent = data.computedTime;
         timeCharacterEl.textContent = data.timeCharacter.character;
         timePegEl.textContent = `Peg ${data.timeCharacter.peg}`;
+
+        // Sync the clock hands to current time
+        updateClock();
+    }
+
+    /**
+     * Draw the analog clock: highlight active quadrant sector and position
+     * hour + minute hands based on the current local time.
+     * Called on every populateUI (initial load, quadrant boundary, tab focus).
+     */
+    function updateClock() {
+        const now = new Date();
+        const hours   = now.getHours() % 12;
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        // ── Active quadrant sector ──────────────────────────────────────────
+        const activeQuadrant = Math.floor(minutes / 15); // 0, 1, 2, or 3
+        document.querySelectorAll('.quadrant-sector').forEach((sector, i) => {
+            sector.classList.toggle('active', i === activeQuadrant);
+        });
+
+        // ── Hand angles (0° = 12 o'clock, rotating clockwise) ──────────────
+        // Convert to SVG coords: subtract 90° so 0 min points up
+        const minDeg  = (minutes / 60) * 360 - 90;
+        const hourDeg = ((hours + minutes / 60) / 12) * 360 - 90;
+
+        const toRad = deg => deg * Math.PI / 180;
+
+        // Minute hand — length 33 (longer, thinner)
+        const minRad = toRad(minDeg);
+        const minX = 50 + 33 * Math.cos(minRad);
+        const minY = 50 + 33 * Math.sin(minRad);
+
+        // Hour hand — length 22 (shorter, thicker)
+        const hourRad = toRad(hourDeg);
+        const hourX = 50 + 22 * Math.cos(hourRad);
+        const hourY = 50 + 22 * Math.sin(hourRad);
+
+        const hourHand = document.getElementById('clock-hour-hand');
+        const minHand  = document.getElementById('clock-minute-hand');
+
+        if (hourHand) { hourHand.setAttribute('x2', hourX.toFixed(2)); hourHand.setAttribute('y2', hourY.toFixed(2)); }
+        if (minHand)  { minHand.setAttribute('x2',  minX.toFixed(2));  minHand.setAttribute('y2',  minY.toFixed(2)); }
     }
 
     /**
