@@ -116,9 +116,18 @@ h2 {
 .banner-sub-title {
     font-size: 1.5rem;
     color: #f8fafc;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     font-weight: 600;
+}
+
+/* Row wrapping the current time character and the clock */
+.banner-current-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0.3rem 0;
 }
 
 /* Context block wrapping prev / current / next */
@@ -129,6 +138,7 @@ h2 {
     gap: 0.1rem;
     margin-bottom: 0.25rem;
 }
+
 
 /* Prev / next rows — faded, small, italic */
 .banner-adjacent {
@@ -311,10 +321,10 @@ h2 {
 
 /* SVG clock sizing */
 .quadrant-clock {
-    width: 68px;
-    height: 68px;
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.4));
+    filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
 }
 
 /* Inactive quadrant sectors — very subtle fill */
@@ -373,8 +383,8 @@ h2 {
 
 @media (min-width: 768px) {
     .quadrant-clock {
-        width: 76px;
-        height: 76px;
+        width: 44px;
+        height: 44px;
     }
 }
 

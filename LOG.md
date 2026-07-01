@@ -59,3 +59,16 @@
     - Added `scheduleNextRefresh()`: arms a single one-shot `setTimeout`.
     - Initial load path unchanged — fetch on `DOMContentLoaded`, then arm first timer.
 
+## FEAT: Show prev/next time characters in banner for learning context (2026-07-01)
+- **Why**: To build a stronger memory association with the surrounding quadrants. Faded adjacent rows flank the current active character.
+- **What Changed**:
+  - `public/index.html`: Added adjacent character context structure.
+  - `public/style.css`: Added styles for the surrounding character rows (.banner-adjacent, .adj-label).
+  - `public/app.js`: Fetched and updated prev/next time characters.
+
+## FEAT: Move SVG Analog Clock to Hero Banner (2026-07-01)
+- **Why**: The user wanted the SVG active-quadrant clock to sit directly in the hero banner next to the active character, instead of inside the dashboard time card.
+- **What Changed**:
+  - `public/index.html`: Moved `<svg id="quadrant-clock">` from `.time-card` to `.banner-character-context` inside a new `.banner-current-row` layout container next to `#banner-time-character`.
+  - `public/style.css`: Styled `.banner-current-row` to display elements inline. Resized the clock size from 68px/76px down to a cleaner 36px/44px to look balanced in the banner context.
+

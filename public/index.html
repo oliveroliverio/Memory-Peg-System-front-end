@@ -6,7 +6,7 @@
     <title>Memory Peg System</title>
     <meta name="description" content="A simple mobile friendly frontend for the Memory Peg System.">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
     <header class="hero-banner">
@@ -20,7 +20,36 @@
                     <span id="banner-prev-time"></span>
                     <span id="banner-prev-character"></span>
                 </p>
-                <h3 id="banner-time-character" class="banner-sub-title"></h3>
+                <div class="banner-current-row">
+                    <h3 id="banner-time-character" class="banner-sub-title"></h3>
+                    <svg id="quadrant-clock" viewBox="0 0 100 100" class="quadrant-clock" aria-label="Analog clock showing current 15-minute quadrant">
+                        <!-- Quadrant sectors (pie slices, active class toggled by JS) -->
+                        <!-- Sector 0: :00–:15 (top-right) -->
+                        <path id="sector-0" class="quadrant-sector" d="M50,50 L50,7 A43,43 0 0,1 93,50 Z"/>
+                        <!-- Sector 1: :15–:30 (bottom-right) -->
+                        <path id="sector-1" class="quadrant-sector" d="M50,50 L93,50 A43,43 0 0,1 50,93 Z"/>
+                        <!-- Sector 2: :30–:45 (bottom-left) -->
+                        <path id="sector-2" class="quadrant-sector" d="M50,50 L50,93 A43,43 0 0,1 7,50 Z"/>
+                        <!-- Sector 3: :45–:00 (top-left) -->
+                        <path id="sector-3" class="quadrant-sector" d="M50,50 L7,50 A43,43 0 0,1 50,7 Z"/>
+                        <!-- Clock rim -->
+                        <circle cx="50" cy="50" r="46" class="clock-rim"/>
+                        <!-- Quadrant dividers -->
+                        <line x1="50" y1="7" x2="50" y2="93" class="quadrant-divider"/>
+                        <line x1="7" y1="50" x2="93" y2="50" class="quadrant-divider"/>
+                        <!-- Hour markers -->
+                        <line x1="50" y1="7" x2="50" y2="13" class="hour-tick"/>
+                        <line x1="93" y1="50" x2="87" y2="50" class="hour-tick"/>
+                        <line x1="50" y1="93" x2="50" y2="87" class="hour-tick"/>
+                        <line x1="7" y1="50" x2="13" y2="50" class="hour-tick"/>
+                        <!-- Hour hand -->
+                        <line id="clock-hour-hand" x1="50" y1="50" x2="50" y2="30" class="clock-hand hour-hand"/>
+                        <!-- Minute hand -->
+                        <line id="clock-minute-hand" x1="50" y1="50" x2="50" y2="14" class="clock-hand minute-hand"/>
+                        <!-- Center dot -->
+                        <circle cx="50" cy="50" r="3.5" class="clock-center"/>
+                    </svg>
+                </div>
                 <p class="banner-adjacent next-character">
                     <span class="adj-label">next →</span>
                     <span id="banner-next-time"></span>
@@ -57,34 +86,6 @@
                         <span class="label" id="computed-time"></span>
                         <div class="time-character-row">
                             <h2 id="time-character"></h2>
-                            <!-- Analog clock: quadrant sectors highlighted, hands set by JS -->
-                            <svg id="quadrant-clock" viewBox="0 0 100 100" class="quadrant-clock" aria-label="Analog clock showing current 15-minute quadrant">
-                                <!-- Quadrant sectors (pie slices, active class toggled by JS) -->
-                                <!-- Sector 0: :00–:15 (top-right) -->
-                                <path id="sector-0" class="quadrant-sector" d="M50,50 L50,7 A43,43 0 0,1 93,50 Z"/>
-                                <!-- Sector 1: :15–:30 (bottom-right) -->
-                                <path id="sector-1" class="quadrant-sector" d="M50,50 L93,50 A43,43 0 0,1 50,93 Z"/>
-                                <!-- Sector 2: :30–:45 (bottom-left) -->
-                                <path id="sector-2" class="quadrant-sector" d="M50,50 L50,93 A43,43 0 0,1 7,50 Z"/>
-                                <!-- Sector 3: :45–:00 (top-left) -->
-                                <path id="sector-3" class="quadrant-sector" d="M50,50 L7,50 A43,43 0 0,1 50,7 Z"/>
-                                <!-- Clock rim -->
-                                <circle cx="50" cy="50" r="46" class="clock-rim"/>
-                                <!-- Quadrant dividers -->
-                                <line x1="50" y1="7" x2="50" y2="93" class="quadrant-divider"/>
-                                <line x1="7" y1="50" x2="93" y2="50" class="quadrant-divider"/>
-                                <!-- Hour markers -->
-                                <line x1="50" y1="7" x2="50" y2="13" class="hour-tick"/>
-                                <line x1="93" y1="50" x2="87" y2="50" class="hour-tick"/>
-                                <line x1="50" y1="93" x2="50" y2="87" class="hour-tick"/>
-                                <line x1="7" y1="50" x2="13" y2="50" class="hour-tick"/>
-                                <!-- Hour hand -->
-                                <line id="clock-hour-hand" x1="50" y1="50" x2="50" y2="30" class="clock-hand hour-hand"/>
-                                <!-- Minute hand -->
-                                <line id="clock-minute-hand" x1="50" y1="50" x2="50" y2="14" class="clock-hand minute-hand"/>
-                                <!-- Center dot -->
-                                <circle cx="50" cy="50" r="3.5" class="clock-center"/>
-                            </svg>
                         </div>
                         <span class="peg-badge" id="time-peg"></span>
                     </div>
@@ -107,6 +108,6 @@
         </section>
     </main>
 
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
 </body>
 </html>
