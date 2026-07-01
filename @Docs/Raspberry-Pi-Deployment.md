@@ -1,19 +1,18 @@
-# Raspberry Pi Deployment Guide — Docker (Primary)
+# Raspberry Pi Deployment Guide — pm2
 
-This guide covers deploying the Memory Peg System Frontend on a Raspberry Pi using **Docker Compose**, which keeps the container running 24/7 and auto-restarts it on reboot or crash.
+Deploys the Memory Peg System Frontend on a Raspberry Pi Zero using **pm2**, which is lightweight (~5MB overhead), auto-restarts on crash, and survives reboots.
 
 ---
 
 ## Prerequisites
 
-Ensure your Raspberry Pi has `git` and `docker` installed.
+Node.js ≥ 18 must be installed on the Pi. Check with `node -v`.
 
 ```bash
-# Install Docker (one-liner)
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-# Log out and back in for group changes to apply
+# Clone the repo
+git clone https://github.com/oliveroliverio/Memory-Peg-System-front-end.git
+cd Memory-Peg-System-front-end
+npm install
 ```
 
 ---
@@ -21,16 +20,28 @@ sudo usermod -aG docker $USER
 ## One-Time Setup
 
 ```bash
-# Clone the repo
-git clone https://github.com/oliveroliverio/Memory-Peg-System-front-end.git
-cd Memory-Peg-System-front-end
+# Install pm2 globally
+npm install -g pm2
 
 # Configure environment
 cp .env.example .env
 nano .env   # set BACKEND_URL if backend is not on localhost:3000
 
-# Build image and start container in background
-docker compose up --build -d
+# Start the app under pm2
+pm2 start server.js --name memory-peg-frontend
+
+# Persist the process list so it survives reboots
+pm2 save
+
+# Generate the startup hook (copy-paste the sudo command it prints)
+pm2 startup
+```
+
+Verify it's running:
+
+```bash
+pm2 status
+pm2 logs memory-peg-frontend
 ```
 
 Access the app at: `http://<RASPBERRY_PI_IP>:8080`
@@ -39,45 +50,32 @@ Access the app at: `http://<RASPBERRY_PI_IP>:8080`
 
 ## Ongoing Update Workflow
 
-Every time you push new code to GitHub and want to deploy to the Pi:
+Every time you push new code to GitHub:
 
 ```bash
 cd ~/Memory-Peg-System-front-end
 git pull
-docker compose up --build -d
+pm2 restart memory-peg-frontend
 ```
 
-- `--build` forces Docker to rebuild the image with the new source files
-- `-d` runs it detached (in the background)
-- The old container is stopped and replaced seamlessly
-- `restart: unless-stopped` in `compose.yml` ensures it survives Pi reboots automatically
-
-> **Always use `--build` on code deploys.** Docker caches the `npm install` layer, so rebuilds are fast even though you always pass the flag.
+3 commands. Done.
 
 ---
 
-## Useful Docker Commands
+## Useful pm2 Commands
 
 | Command | What it does |
 |---|---|
-| `docker compose ps` | See container status |
-| `docker compose logs -f` | Tail live logs |
-| `docker compose up --build -d` | Deploy latest code (build + restart) |
-| `docker compose restart` | Restart without rebuilding |
-| `docker compose down` | Stop and remove container |
-| `docker compose down --rmi local` | Stop, remove container and built image |
+| `pm2 status` | See all running processes |
+| `pm2 logs memory-peg-frontend` | Tail live logs |
+| `pm2 restart memory-peg-frontend` | Restart after code changes |
+| `pm2 stop memory-peg-frontend` | Stop the process |
+| `pm2 delete memory-peg-frontend` | Remove from pm2 list |
+| `pm2 save` | Persist process list (run after any change) |
+| `pm2 startup` | Re-generate startup hook after OS reinstall |
 
 ---
 
-## Why Docker over pm2
+## Why pm2 over Docker on Pi Zero
 
-| | Docker | pm2 |
-|---|---|---|
-| Auto-restart on crash | ✅ | ✅ |
-| Auto-start on reboot | ✅ (`restart: unless-stopped`) | Requires `pm2 startup` setup |
-| Isolated environment | ✅ | ❌ (uses host Node) |
-| Reproducible deploys | ✅ (pinned image + lockfile) | ❌ |
-| Multi-service ready | ✅ | Gets messy |
-| Pi overhead | Moderate | Minimal |
-
-Docker is the right choice here — consistent environments, zero "works on my machine" issues, and trivially extensible if a backend service is added to the same Pi later.
+The Pi Zero (ARMv6) has no official Docker support, and the Pi Zero 2 W (512MB RAM) is too constrained for Docker's ~80MB daemon overhead. pm2 adds ~5MB and provides the same crash-recovery and reboot-survival guarantees for a single Node.js process.
