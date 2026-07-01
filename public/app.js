@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const bannerTitleEl = document.getElementById('banner-title');
     const bannerTimeCharacterEl = document.getElementById('banner-time-character');
     const bannerSubtitleEl = document.getElementById('banner-subtitle');
+    const bannerPrevTimeEl = document.getElementById('banner-prev-time');
+    const bannerPrevCharacterEl = document.getElementById('banner-prev-character');
+    const bannerNextTimeEl = document.getElementById('banner-next-time');
+    const bannerNextCharacterEl = document.getElementById('banner-next-character');
 
     const weekNumEl = document.getElementById('week-num');
     const weekCreatureEl = document.getElementById('week-creature');
@@ -24,11 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
      * Populate all UI elements from an API response payload.
      */
     function populateUI(data) {
-        // Banner
+        // Banner — current
         bannerTitleEl.textContent = data.weekCreature.creature;
         bannerTimeCharacterEl.textContent = data.timeCharacter.character;
         bannerSubtitleEl.textContent = `Week ${data.weekCreature.weekFormatted}`;
 
+        // Banner — prev / next context
+        if (data.prevTimeCharacter) {
+            bannerPrevTimeEl.textContent = data.prevTimeCharacter.time;
+            bannerPrevCharacterEl.textContent = data.prevTimeCharacter.character;
+        }
+        if (data.nextTimeCharacter) {
+            bannerNextTimeEl.textContent = data.nextTimeCharacter.time;
+            bannerNextCharacterEl.textContent = data.nextTimeCharacter.character;
+        }
         // Week card
         weekNumEl.textContent = data.weekCreature.weekFormatted;
         weekCreatureEl.textContent = data.weekCreature.creature;

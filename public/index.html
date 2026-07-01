@@ -6,7 +6,7 @@
     <title>Memory Peg System</title>
     <meta name="description" content="A simple mobile friendly frontend for the Memory Peg System.">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <header class="hero-banner">
@@ -14,7 +14,19 @@
         <img src="banner.png" alt="Memory Palace Banner" class="banner-img">
         <div class="banner-content">
             <h1 id="banner-title">Memory Peg System</h1>
-            <h3 id="banner-time-character" class="banner-sub-title"></h3>
+            <div class="banner-character-context">
+                <p class="banner-adjacent prev-character">
+                    <span class="adj-label">← prev</span>
+                    <span id="banner-prev-time"></span>
+                    <span id="banner-prev-character"></span>
+                </p>
+                <h3 id="banner-time-character" class="banner-sub-title"></h3>
+                <p class="banner-adjacent next-character">
+                    <span class="adj-label">next →</span>
+                    <span id="banner-next-time"></span>
+                    <span id="banner-next-character"></span>
+                </p>
+            </div>
             <p id="banner-subtitle">Your daily magical memory palace</p>
         </div>
     </header>
@@ -95,6 +107,6 @@
         </section>
     </main>
 
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=6"></script>
 </body>
 </html>

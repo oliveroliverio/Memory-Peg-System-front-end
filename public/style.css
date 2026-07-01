@@ -121,6 +121,38 @@ h2 {
     font-weight: 600;
 }
 
+/* Context block wrapping prev / current / next */
+.banner-character-context {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Prev / next rows — faded, small, italic */
+.banner-adjacent {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 400;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+}
+
+.banner-adjacent .adj-label {
+    font-style: normal;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    white-space: nowrap;
+}
+
+
 .banner-content p {
     font-size: 1.1rem;
     color: #e2e8f0;
