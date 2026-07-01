@@ -1,67 +1,107 @@
-# Raspberry Pi 24/7 Production Deployment Guide
+# Raspberry Pi Deployment Guide — pm2 (Primary)
 
-This guide provides step-by-step instructions on how to deploy the Memory Peg System Frontend on a Raspberry Pi using Docker and Docker Compose so it runs 24/7 continuously, even after reboots.
+This guide covers deploying the Memory Peg System Frontend on a Raspberry Pi using **pm2**, which keeps the Node.js process alive 24/7 and auto-restarts it on reboot or crash.
 
-## Prerequisites
-Ensure your Raspberry Pi has `git`, `docker`, and `docker-compose` installed.
-
-If you don't have Docker installed, you can install it quickly on your Raspberry Pi:
-```bash
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-```
-*(You may need to log out and log back in for the user group changes to apply.)*
+> Docker instructions are preserved at the bottom as an alternative if you ever need multi-service orchestration.
 
 ---
 
-## Step-by-Step Deployment Instructions
+## Prerequisites
 
-### 1. Clone the Repository
-Start by pulling down the latest version of the frontend repository onto your Raspberry Pi:
+- Node.js ≥ 18 installed on the Pi (`node -v` to check)
+- The repo cloned on the Pi
+
 ```bash
 git clone https://github.com/oliveroliverio/Memory-Peg-System-front-end.git
 cd Memory-Peg-System-front-end
+npm install
 ```
 
-### 2. Configure Environment (Optional)
-The application assumes your backend API (the original Memory-Peg-System) is running on the same Raspberry Pi on port `3000`. 
-If your backend is running on a different port or a different machine, you can create an `.env` file to configure it:
+---
+
+## One-Time pm2 Setup
+
 ```bash
+# Install pm2 globally
+npm install -g pm2
+
+# Configure environment (backend URL, port, etc.)
 cp .env.example .env
-# Edit .env and add: BACKEND_URL=http://<YOUR_BACKEND_IP>:3000
+nano .env   # set BACKEND_URL and PORT as needed
+
+# Start the app under pm2
+pm2 start server.js --name memory-peg-frontend
+
+# Persist the process list across reboots
+pm2 save
+
+# Generate the systemd/init startup hook (run the printed command it gives you)
+pm2 startup
+# ↑ Copy-paste the exact `sudo env PATH=...` command it prints and run it
 ```
 
-### 3. Build and Start the Container 24/7
-We will use Docker Compose to build the minimal production image and start it in the background (`-d` flag for detached mode).
+Verify it's running:
+
+```bash
+pm2 status
+pm2 logs memory-peg-frontend
+```
+
+Access the app at: `http://<RASPBERRY_PI_IP>:8080`
+
+---
+
+## Ongoing Update Workflow
+
+Every time you push new code to GitHub and want to deploy to the Pi:
+
+```bash
+cd ~/Memory-Peg-System-front-end
+git pull
+pm2 restart memory-peg-frontend
+```
+
+3 commands. Done.
+
+---
+
+## Useful pm2 Commands
+
+| Command | What it does |
+|---|---|
+| `pm2 status` | See all running processes |
+| `pm2 logs memory-peg-frontend` | Tail live logs |
+| `pm2 restart memory-peg-frontend` | Restart after code changes |
+| `pm2 stop memory-peg-frontend` | Stop the process |
+| `pm2 delete memory-peg-frontend` | Remove from pm2 list |
+| `pm2 save` | Persist current process list to survive reboots |
+| `pm2 startup` | Re-generate startup hook (run once after any OS reinstall) |
+
+---
+
+## Docker Alternative (appendix)
+
+If you ever migrate to multi-service setup (backend + frontend together), Docker Compose is the better choice.
+
+### Build and start
 
 ```bash
 docker compose up --build -d
 ```
 
-**Why this setup?**
-- **Docker Compose**: Ensures that the container will automatically restart if it crashes or if the Raspberry Pi reboots (thanks to `restart: unless-stopped`).
-- **Host Network Mode**: We are using `network_mode: "host"`, meaning the container shares the Pi's networking. This natively allows the frontend container to talk to the backend on `localhost:3000` without any tricky Docker network configurations.
-- **Minimal Image**: We use `node:20-alpine` and `--only=production` to keep the memory footprint very small on the Raspberry Pi.
+### Update after git pull
 
-### 4. Verify it's Running
-Check the status of the container:
-```bash
-docker compose ps
-```
-Or check the live logs:
-```bash
-docker compose logs -f
-```
-
-### 5. Access the App
-You can now access your beautiful dashboard from any device on your local network by going to:
-`http://<RASPBERRY_PI_IP_ADDRESS>:8080`
-
-### Updating the App in the Future
-When you push new changes to GitHub and want to update the Raspberry Pi, run these commands inside the `Memory-Peg-System-front-end` directory:
 ```bash
 git pull
 docker compose up --build -d
 ```
-Docker will automatically stop the old version, build the new one, and bring it back up seamlessly!
+
+### Other commands
+
+```bash
+docker compose ps          # status
+docker compose logs -f     # live logs
+docker compose down        # stop and remove containers
+```
+
+> **Note**: Always use `--build` when deploying code changes. Docker caches the `npm install` layer, so rebuilds are fast.
