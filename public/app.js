@@ -80,15 +80,32 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // Track the active timer so we can cancel it if the tab wakes from background
+    let nextRefreshTimer = null;
+
     /**
      * Schedule a single setTimeout to fire at the next quadrant boundary.
      * Chains itself — no polling, no setInterval.
      */
     function scheduleNextRefresh() {
+        if (nextRefreshTimer) clearTimeout(nextRefreshTimer);
         const delay = msUntilNextQuadrant();
         console.log(`[Memory Peg] Next refresh in ${Math.round(delay / 1000)}s`);
-        setTimeout(refreshAtQuadrant, delay);
+        nextRefreshTimer = setTimeout(refreshAtQuadrant, delay);
     }
+
+    /**
+     * iOS Safari (and other mobile browsers) throttle or kill setTimeout when
+     * the tab is backgrounded or the screen locks. When the user returns to the
+     * tab, immediately re-fetch so the display is never stale, then re-arm the
+     * timer for the next boundary.
+     */
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            console.log('[Memory Peg] Tab visible — refreshing in case timer was throttled');
+            refreshAtQuadrant();
+        }
+    });
 
     // ── Initial load ──────────────────────────────────────────────────────────
     fetch('/api/getCharacters')
