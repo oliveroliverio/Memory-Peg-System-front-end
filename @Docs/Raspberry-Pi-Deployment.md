@@ -53,12 +53,20 @@ Access the app at: `http://<RASPBERRY_PI_IP>:8080`
 Every time you push new code to GitHub:
 
 ```bash
-cd ~/Memory-Peg-System-front-end
+cd ~/Memory-Peg-System        # or Memory-Peg-System-front-end
 git pull
-pm2 restart memory-peg-frontend
+pm2 reload memory-peg-backend # use reload, not restart (see note below)
 ```
 
-3 commands. Done.
+> **Pi Zero note:** `pm2 restart` sometimes doesn't kill the old process on
+> resource-constrained hardware. `pm2 reload` does a graceful in-place
+> replacement and is more reliable. If the API still returns stale data after
+> a reload, force-kill the old process and let pm2 auto-respawn:
+>
+> ```bash
+> kill $(ps aux | grep 'Memory-Peg-System/server' | grep -v grep | awk '{print $2}')
+> # pm2 detects the death and spawns a fresh process automatically
+> ```
 
 ---
 
