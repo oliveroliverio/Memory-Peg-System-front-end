@@ -72,3 +72,12 @@
   - `public/index.html`: Moved `<svg id="quadrant-clock">` from `.time-card` to `.banner-character-context` inside a new `.banner-current-row` layout container next to `#banner-time-character`.
   - `public/style.css`: Styled `.banner-current-row` to display elements inline. Resized the clock size from 68px/76px down to a cleaner 36px/44px to look balanced in the banner context.
 
+## FEAT: Dynamic day-of-week theme switcher (2026-07-03)
+- **Why**: The user wanted the UI color, font, and style palette to adapt dynamically to the current day's theme as fetched from the backend (e.g. Christmas red/green, Halloween orange/green/black).
+- **What Changed**:
+  - `public/index.html`: Linked `themes.css` and combined Google Fonts loading for Outfit, Fredoka, Russo One, Cinzel Decorative, Lora, Cinzel, Creepster, and Mountains of Christmas.
+  - `public/style.css`: Converted background glows, heading gradients, clock animations, and badge drop-shadows to CSS custom properties (`var()`). Added smooth 0.6s easing transitions.
+  - `public/themes.css`: Created a dedicated stylesheet defining unique dark-mode adapted color, glow, and typography variables for all 7 day themes.
+  - `public/app.js`: Updated `populateUI` to dynamically toggle theme classnames (e.g. `theme-halloween`) on the `<body>` element.
+  - `@Docs/Journal-2026-07-03.md`: Created dev journal describing design choices, implementation details, and container rebuild workflows.
+

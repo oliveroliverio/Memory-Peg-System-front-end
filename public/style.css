@@ -7,6 +7,13 @@
     --glass-bg: rgba(30, 41, 59, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
     --neon-glow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+
+    /* Dynamic Theme Defaults */
+    --title-font: 'Outfit', sans-serif;
+    --title-gradient: linear-gradient(to right, #c4b5fd, #93c5fd);
+    --h2-gradient: linear-gradient(to right, #e2e8f0, #94a3b8);
+    --clock-glow: rgba(139, 92, 246, 0.5);
+    --clock-active: rgba(139, 92, 246, 0.35);
 }
 
 * {
@@ -22,6 +29,7 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background-color 0.6s ease, color 0.6s ease;
     background-image: 
         radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
         radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
@@ -29,14 +37,17 @@ body {
 
 /* Typography */
 h1, h2, h3 {
+    font-family: var(--title-font), sans-serif;
     font-weight: 800;
     letter-spacing: -0.05em;
+    transition: color 0.6s ease;
 }
 
 h2 {
     font-size: 1.5rem;
-    background: linear-gradient(to right, #e2e8f0, #94a3b8);
+    background: var(--h2-gradient);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
 }
@@ -108,9 +119,11 @@ h2 {
     font-size: 2.5rem;
     margin-bottom: 0.25rem;
     text-shadow: var(--neon-glow);
-    background: linear-gradient(to right, #c4b5fd, #93c5fd);
+    background: var(--title-gradient);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    transition: text-shadow 0.6s ease;
 }
 
 .banner-sub-title {
@@ -178,6 +191,7 @@ h2 {
     border-radius: 1.5rem;
     padding: 1.5rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: background 0.6s ease, border-color 0.6s ease;
 }
 
 /* Dashboard Cards */
@@ -225,7 +239,8 @@ h2 {
     border-radius: 2rem;
     font-weight: 800;
     font-size: 0.9rem;
-    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 10px var(--clock-active);
+    transition: background 0.6s ease, box-shadow 0.6s ease;
 }
 
 /* Learning Stage */
@@ -324,7 +339,8 @@ h2 {
     width: 36px;
     height: 36px;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
+    filter: drop-shadow(0 0 6px var(--clock-glow));
+    transition: filter 0.6s ease;
 }
 
 /* Inactive quadrant sectors — very subtle fill */
@@ -335,8 +351,9 @@ h2 {
 
 /* Active quadrant — vibrant purple glow */
 .quadrant-sector.active {
-    fill: rgba(139, 92, 246, 0.35);
-    filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.6));
+    fill: var(--clock-active);
+    filter: drop-shadow(0 0 4px var(--clock-glow));
+    transition: fill 0.6s ease, filter 0.6s ease;
 }
 
 /* Clock outer rim */

@@ -52,6 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
         dayThemeEl.textContent = data.dayTheme.theme;
         dayPropsEl.textContent = data.dayTheme.props.join(', ');
 
+        // Dynamic theme switching
+        if (data.dayTheme && data.dayTheme.theme) {
+            const themeClass = 'theme-' + data.dayTheme.theme.toLowerCase().replace(/\s+/g, '-');
+            document.body.className = document.body.className
+                .split(' ')
+                .filter(c => !c.startsWith('theme-'))
+                .join(' ');
+            document.body.classList.add(themeClass);
+        }
+
         // Time card
         computedTimeEl.textContent = data.computedTime;
         timeCharacterEl.textContent = data.timeCharacter.character;

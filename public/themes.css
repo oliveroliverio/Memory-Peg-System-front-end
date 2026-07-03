@@ -1,0 +1,185 @@
+/* ==========================================================================
+   Memory Peg System - Dynamic Day Themes Stylesheet
+   ========================================================================== */
+
+/* --- 1. Sunday: Easter Theme --- */
+body.theme-easter {
+    --bg-dark: #150f24;
+    --text-light: #fff5fa;
+    --text-muted: #d9c4ec;
+    --primary-color: #ec4899;      /* Pastel Pink */
+    --secondary-color: #10b981;    /* Mint Green */
+    --glass-bg: rgba(35, 23, 50, 0.65);
+    --glass-border: rgba(236, 72, 153, 0.2);
+    --neon-glow: 0 0 10px rgba(236, 72, 153, 0.4), 0 0 20px rgba(16, 185, 129, 0.3);
+    --title-font: 'Fredoka', sans-serif;
+    --title-gradient: linear-gradient(to right, #ec4899, #f472b6, #6ee7b7);
+    --h2-gradient: linear-gradient(to right, #fbcfe8, #a7f3d0);
+    --clock-glow: rgba(236, 72, 153, 0.45);
+    --clock-active: rgba(16, 185, 129, 0.35);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(236, 72, 153, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.12) 0%, transparent 50%);
+}
+body.theme-easter h1, body.theme-easter h2, body.theme-easter h3 {
+    letter-spacing: -0.01em;
+}
+
+/* --- 2. Monday: Independence Day Theme --- */
+body.theme-independence-day {
+    --bg-dark: #070c1e;
+    --text-light: #f8fafc;
+    --text-muted: #94a3b8;
+    --primary-color: #ef4444;      /* Patriotic Red */
+    --secondary-color: #3b82f6;    /* Patriotic Blue */
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(59, 130, 246, 0.2);
+    --neon-glow: 0 0 12px rgba(239, 68, 68, 0.5), 0 0 24px rgba(59, 130, 246, 0.4);
+    --title-font: 'Russo One', sans-serif;
+    --title-gradient: linear-gradient(to right, #ef4444, #f8fafc, #3b82f6);
+    --h2-gradient: linear-gradient(to right, #fee2e2, #dbeafe);
+    --clock-glow: rgba(59, 130, 246, 0.5);
+    --clock-active: rgba(239, 68, 68, 0.45);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(239, 68, 68, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.14) 0%, transparent 50%);
+}
+body.theme-independence-day h1, body.theme-independence-day h2, body.theme-independence-day h3 {
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+/* --- 3. Tuesday: Mardi Gras Theme --- */
+body.theme-mardi-gras {
+    --bg-dark: #120320;
+    --text-light: #fef8ff;
+    --text-muted: #c084fc;
+    --primary-color: #a855f7;      /* Royal Purple */
+    --secondary-color: #eab308;    /* Gold */
+    --glass-bg: rgba(30, 8, 48, 0.65);
+    --glass-border: rgba(234, 179, 8, 0.2);
+    --neon-glow: 0 0 15px rgba(168, 85, 247, 0.55), 0 0 25px rgba(234, 179, 8, 0.45);
+    --title-font: 'Cinzel Decorative', serif;
+    --title-gradient: linear-gradient(to right, #c084fc, #eab308, #22c55e);
+    --h2-gradient: linear-gradient(to right, #f3e8ff, #fef9c3);
+    --clock-glow: rgba(168, 85, 247, 0.5);
+    --clock-active: rgba(34, 197, 94, 0.4);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(234, 179, 8, 0.12) 0%, transparent 50%);
+}
+body.theme-mardi-gras h1, body.theme-mardi-gras h2, body.theme-mardi-gras h3 {
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+/* --- 4. Wednesday: Thanksgiving Theme --- */
+body.theme-thanksgiving {
+    --bg-dark: #180d07;
+    --text-light: #fffaf5;
+    --text-muted: #cca793;
+    --primary-color: #f97316;      /* Pumpkin Orange */
+    --secondary-color: #fbbf24;    /* Warm Gold */
+    --glass-bg: rgba(40, 20, 10, 0.7);
+    --glass-border: rgba(249, 115, 22, 0.2);
+    --neon-glow: 0 0 10px rgba(249, 115, 22, 0.45), 0 0 20px rgba(251, 191, 36, 0.35);
+    --title-font: 'Lora', serif;
+    --title-gradient: linear-gradient(to right, #f97316, #fbbf24);
+    --h2-gradient: linear-gradient(to right, #ffedd5, #fef9c3);
+    --clock-glow: rgba(249, 115, 22, 0.5);
+    --clock-active: rgba(251, 191, 36, 0.4);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.12) 0%, transparent 50%);
+}
+body.theme-thanksgiving h1, body.theme-thanksgiving h2, body.theme-thanksgiving h3 {
+    letter-spacing: -0.02em;
+    font-style: italic;
+    font-weight: 700;
+}
+
+/* --- 5. Thursday: Lunar New Year Theme --- */
+body.theme-lunar-new-year {
+    --bg-dark: #1a0406;
+    --text-light: #fff5f5;
+    --text-muted: #fda4af;
+    --primary-color: #ef4444;      /* Dragon Red */
+    --secondary-color: #fbbf24;    /* Imperial Gold */
+    --glass-bg: rgba(45, 8, 12, 0.7);
+    --glass-border: rgba(251, 191, 36, 0.25);
+    --neon-glow: 0 0 12px rgba(239, 68, 68, 0.55), 0 0 24px rgba(251, 191, 36, 0.45);
+    --title-font: 'Cinzel', serif;
+    --title-gradient: linear-gradient(to right, #ef4444, #fbbf24);
+    --h2-gradient: linear-gradient(to right, #ffe4e6, #fef9c3);
+    --clock-glow: rgba(251, 191, 36, 0.5);
+    --clock-active: rgba(239, 68, 68, 0.4);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.15) 0%, transparent 50%);
+}
+body.theme-lunar-new-year h1, body.theme-lunar-new-year h2, body.theme-lunar-new-year h3 {
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* --- 6. Friday: Halloween Theme --- */
+body.theme-halloween {
+    --bg-dark: #08020e;
+    --text-light: #fbf5ff;
+    --text-muted: #b794f4;
+    --primary-color: #ff7a00;      /* Pumpkin Orange */
+    --secondary-color: #22c55e;    /* Slime Green */
+    --glass-bg: rgba(18, 5, 30, 0.75);
+    --glass-border: rgba(255, 122, 0, 0.25);
+    --neon-glow: 0 0 15px rgba(255, 122, 0, 0.65), 0 0 30px rgba(34, 197, 94, 0.4);
+    --title-font: 'Creepster', cursive;
+    --title-gradient: linear-gradient(to right, #ff7a00, #a855f7, #22c55e);
+    --h2-gradient: linear-gradient(to right, #ffe3cc, #d7ffd9);
+    --clock-glow: rgba(255, 122, 0, 0.6);
+    --clock-active: rgba(34, 197, 94, 0.45);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(255, 122, 0, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(34, 197, 94, 0.12) 0%, transparent 50%);
+}
+body.theme-halloween h1, body.theme-halloween h2, body.theme-halloween h3 {
+    letter-spacing: 0.08em;
+    font-weight: 400;
+}
+/* Style adjustments for creepy fonts */
+body.theme-halloween .label {
+    letter-spacing: 0.2em;
+}
+body.theme-halloween .banner-img {
+    filter: sepia(0.5) hue-rotate(240deg) saturate(1.8) contrast(1.2);
+}
+
+/* --- 7. Saturday: Christmas Theme --- */
+body.theme-christmas {
+    --bg-dark: #04120c;
+    --text-light: #f0fdf4;
+    --text-muted: #86efac;
+    --primary-color: #dc2626;      /* Holiday Red */
+    --secondary-color: #15803d;    /* Pine Green */
+    --glass-bg: rgba(6, 28, 20, 0.7);
+    --glass-border: rgba(220, 38, 38, 0.2);
+    --neon-glow: 0 0 10px rgba(220, 38, 38, 0.5), 0 0 20px rgba(21, 128, 61, 0.4);
+    --title-font: 'Mountains of Christmas', cursive;
+    --title-gradient: linear-gradient(to right, #fca5a5, #fef08a, #86efac);
+    --h2-gradient: linear-gradient(to right, #fee2e2, #fef9c3);
+    --clock-glow: rgba(220, 38, 38, 0.55);
+    --clock-active: rgba(21, 128, 61, 0.45);
+    
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(21, 128, 61, 0.15) 0%, transparent 50%);
+}
+body.theme-christmas h1, body.theme-christmas h2, body.theme-christmas h3 {
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
