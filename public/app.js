@@ -24,6 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeCharacterEl = document.getElementById('time-character');
     const timePegEl = document.getElementById('time-peg');
 
+    // Gallery elements
+    const galleryGridEl = document.getElementById('gallery-grid');
+    const galleryLoaderEl = document.getElementById('gallery-loader');
+    const galleryEmptyEl = document.getElementById('gallery-empty');
+    const gallerySubtitleEl = document.getElementById('gallery-subtitle');
+
+    // Lightbox elements
+    const lightboxEl = document.getElementById('lightbox');
+    const lightboxStageEl = document.getElementById('lightbox-stage');
+    const lightboxCounterEl = document.getElementById('lightbox-counter');
+    const lightboxCloseEl = document.getElementById('lightbox-close');
+    const lightboxPrevEl = document.getElementById('lightbox-prev');
+    const lightboxNextEl = document.getElementById('lightbox-next');
+
     /**
      * Populate all UI elements from an API response payload.
      */
@@ -69,7 +83,222 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Sync the clock hands to current time
         updateClock();
+
+        // Load the media captured during the current time-character quadrant
+        const label = data && data.timeCharacter ? data.timeCharacter.character : '';
+        loadGallery(label);
     }
+
+    // ── Memory Gallery ──────────────────────────────────────────────────────
+    // Tracks the assets currently rendered so the lightbox can navigate them.
+    let galleryAssets = [];
+    let lightboxIndex = 0;
+
+    /**
+     * Derive the DataLake gallery params from a Date:
+     *   date     -> YYMMDD
+     *   quadrant -> HHMM, minutes floored to the enclosing 15-min boundary.
+     * Uses local time so it matches both the clock and the capture filenames.
+     */
+    function quadrantParams(d) {
+        const yy = String(d.getFullYear()).slice(-2);
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const HH = String(d.getHours()).padStart(2, '0');
+        const q = Math.floor(d.getMinutes() / 15) * 15;
+        const MM = String(q).padStart(2, '0');
+        return { date: `${yy}${mm}${dd}`, quadrant: `${HH}${MM}` };
+    }
+
+    /** Format a ms timestamp as a short local clock time (e.g. "11:05 AM"). */
+    function formatClock(ms) {
+        return new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+
+    /**
+     * Fetch and render all media for the current 15-minute quadrant.
+     * @param {string} characterLabel current time-character name for the subtitle.
+     */
+    function loadGallery(characterLabel) {
+        const { date, quadrant } = quadrantParams(new Date());
+        galleryLoaderEl.style.display = 'block';
+        galleryEmptyEl.style.display = 'none';
+
+        fetch(`/api/gallery/${date}/${quadrant}`)
+            .then((r) => {
+                if (!r.ok) throw new Error('Gallery request failed');
+                return r.json();
+            })
+            .then((payload) => {
+                galleryLoaderEl.style.display = 'none';
+                renderGallery(payload.assets || [], characterLabel);
+            })
+            .catch((err) => {
+                console.error('[Memory Peg] Gallery load failed:', err);
+                galleryLoaderEl.style.display = 'none';
+                renderGallery([], characterLabel);
+            });
+    }
+
+    /** Render the thumbnail grid from an asset list. */
+    function renderGallery(assets, characterLabel) {
+        galleryAssets = assets;
+        galleryGridEl.innerHTML = '';
+
+        const who = characterLabel ? ` for ${characterLabel}` : '';
+        if (!assets.length) {
+            galleryGridEl.classList.remove('has-items');
+            gallerySubtitleEl.textContent = `No media captured this quadrant${who}`;
+            galleryEmptyEl.style.display = 'block';
+            return;
+        }
+
+        galleryEmptyEl.style.display = 'none';
+        galleryGridEl.classList.add('has-items');
+        gallerySubtitleEl.textContent =
+            `${assets.length} item${assets.length === 1 ? '' : 's'} captured this quadrant${who}`;
+
+        assets.forEach((asset, i) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            item.setAttribute('role', 'button');
+            item.setAttribute('tabindex', '0');
+            item.setAttribute('aria-label', `Open media captured at ${formatClock(asset.timestamp)}`);
+
+            let media;
+            if (asset.mediaType === 'image') {
+                media = document.createElement('img');
+                media.loading = 'lazy';          // lazy loading per PRD
+                media.src = asset.url;
+                media.alt = `Captured ${formatClock(asset.timestamp)}`;
+            } else if (asset.mediaType === 'video') {
+                media = document.createElement('video');
+                media.src = asset.url;
+                media.muted = true;
+                media.preload = 'metadata';
+                item.appendChild(badge('▶ video'));
+            } else {
+                // text / pdf / json — show a document tile
+                media = document.createElement('div');
+                media.className = 'gallery-time';
+                media.style.position = 'static';
+                media.style.opacity = '1';
+                item.appendChild(badge(asset.extension || 'doc'));
+            }
+            item.appendChild(media);
+
+            // Hover time caption
+            const time = document.createElement('div');
+            time.className = 'gallery-time';
+            time.textContent = formatClock(asset.timestamp);
+            item.appendChild(time);
+
+            // Mobile "+N more" overlay lives on the first tile only
+            if (i === 0 && assets.length > 1) {
+                const more = document.createElement('div');
+                more.className = 'gallery-more active';
+                more.textContent = `+${assets.length - 1} more`;
+                item.appendChild(more);
+            }
+
+            item.addEventListener('click', () => openLightbox(i));
+            item.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openLightbox(i);
+                }
+            });
+            galleryGridEl.appendChild(item);
+        });
+    }
+
+    function badge(text) {
+        const b = document.createElement('span');
+        b.className = 'gallery-badge';
+        b.textContent = text;
+        return b;
+    }
+
+    // ── Lightbox / swipe viewer ─────────────────────────────────────────────
+    function openLightbox(index) {
+        if (!galleryAssets.length) return;
+        lightboxIndex = index;
+        renderLightbox();
+        lightboxEl.classList.add('open');
+        lightboxEl.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightboxEl.classList.remove('open');
+        lightboxEl.setAttribute('aria-hidden', 'true');
+        lightboxStageEl.innerHTML = '';
+        document.body.style.overflow = '';
+    }
+
+    function navLightbox(delta) {
+        if (!galleryAssets.length) return;
+        lightboxIndex = (lightboxIndex + delta + galleryAssets.length) % galleryAssets.length;
+        renderLightbox();
+    }
+
+    function renderLightbox() {
+        const asset = galleryAssets[lightboxIndex];
+        lightboxStageEl.innerHTML = '';
+
+        let node;
+        if (asset.mediaType === 'image') {
+            node = document.createElement('img');
+            node.src = asset.url;
+            node.alt = `Captured ${formatClock(asset.timestamp)}`;
+        } else if (asset.mediaType === 'video') {
+            node = document.createElement('video');
+            node.src = asset.url;
+            node.controls = true;
+            node.autoplay = true;
+        } else {
+            node = document.createElement('div');
+            node.className = 'lightbox-text';
+            node.innerHTML = `<p>${asset.relativePath}</p>` +
+                `<p><a href="${asset.url}" target="_blank" rel="noopener" style="color:#93c5fd">Open document ↗</a></p>`;
+        }
+        lightboxStageEl.appendChild(node);
+        lightboxCounterEl.textContent =
+            `${lightboxIndex + 1} / ${galleryAssets.length} · ${formatClock(asset.timestamp)}`;
+    }
+
+    lightboxCloseEl.addEventListener('click', closeLightbox);
+    lightboxPrevEl.addEventListener('click', () => navLightbox(-1));
+    lightboxNextEl.addEventListener('click', () => navLightbox(1));
+
+    // Click on the dimmed backdrop (not the media) closes the viewer
+    lightboxEl.addEventListener('click', (e) => {
+        if (e.target === lightboxEl || e.target === lightboxStageEl) closeLightbox();
+    });
+
+    // Keyboard navigation (desktop)
+    document.addEventListener('keydown', (e) => {
+        if (!lightboxEl.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        else if (e.key === 'ArrowRight') navLightbox(1);
+        else if (e.key === 'ArrowLeft') navLightbox(-1);
+    });
+
+    // Touch swipe navigation (mobile)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    lightboxEl.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    lightboxEl.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        const dy = e.changedTouches[0].screenY - touchStartY;
+        // Horizontal swipe dominates -> navigate; else ignore (allow vertical scroll)
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+            navLightbox(dx < 0 ? 1 : -1);
+        }
+    }, { passive: true });
 
     /**
      * Draw the analog clock: highlight active quadrant sector and position
