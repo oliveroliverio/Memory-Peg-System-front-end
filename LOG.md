@@ -81,3 +81,19 @@
   - `public/app.js`: Updated `populateUI` to dynamically toggle theme classnames (e.g. `theme-halloween`) on the `<body>` element.
   - `@Docs/Journal-2026-07-03.md`: Created dev journal describing design choices, implementation details, and container rebuild workflows.
 
+## FEAT: Time-character media gallery from the DataLake (2026-07-04)
+- **Why**: Per `MemoryPeg_TimeCharacter_Gallery_PRD.md`, each time character should automatically display all media captured during its 15-minute quadrant, sourced from the canonical DataLake at `/home/olivero54/DATALAKE`.
+- **Strategy**: Build an in-memory metadata index once at boot and keep it current with a chokidar filesystem watcher instead of rescanning on every request. A storage-provider abstraction isolates the local DataLake so future providers (Synology, S3, Drive, …) can slot in behind the same index/API. Timestamps parse from the `YYMMDD-HHMMSS_<n>.ext` filename, falling back to fs birthtime then mtime. Interval matching includes assets where `intervalStart <= timestamp < intervalEnd`.
+- **What Changed**:
+  - `lib/timestamp.js`: Filename timestamp parser (local time) with birthtime/mtime fallback chain and rollover validation.
+  - `lib/mediaTypes.js`: Extension→type registry covering PRD phases 1–3 (image / video / text).
+  - `lib/provider.js`: `StorageProvider` interface + `LocalDataLakeProvider` (recursive scan + chokidar watcher with `awaitWriteFinish`).
+  - `lib/galleryIndex.js`: `GalleryIndex` — builds records `{absolutePath, relativePath, timestamp, mediaType, extension, filesize, timestampSource}`, maintains them live from watcher events, and answers `queryQuadrant()` / `queryInterval()` chronologically.
+  - `server.js`: Starts the index at boot; adds `GET /api/gallery/:date/:quadrant` (date=YYMMDD, quadrant=HHMM snapped to :00/:15/:30/:45), a `/media` static route serving raw DataLake files, and `/api/gallery-stats` diagnostics.
+  - `public/index.html`: Added the Memory Gallery section and a fullscreen lightbox/swipe-viewer overlay; bumped asset cache-bust to `v8`.
+  - `public/style.css`: Responsive thumbnail grid (lazy-loaded), hover captions, mobile "+N more" single-image collapse, and lightbox styling (arrows on desktop, swipe on mobile).
+  - `public/app.js`: `loadGallery()` derives the current quadrant from local time and fetches `/api/gallery/...`; `renderGallery()` builds the grid; lightbox supports keyboard nav (←/→/Esc) on desktop and touch-swipe on mobile. Re-runs on every `populateUI` so it tracks quadrant boundaries.
+  - `compose.yml`: Mounted `/home/olivero54/DATALAKE` read-only into the container so the index/watcher see media at the default path.
+  - `package.json`: Added `chokidar` dependency.
+- **Verified**: Container rebuilt; index loaded 743 assets; `/api/gallery/260703/1100` returned 13 chronologically-sorted assets for the 11:00–11:15 window; `/media/*` served PNGs `200 image/png`; bad params → `400`; live watcher add/remove updated the index within ~1s.
+

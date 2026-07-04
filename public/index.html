@@ -6,8 +6,8 @@
     <title>Memory Peg System</title>
     <meta name="description" content="A simple mobile friendly frontend for the Memory Peg System.">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Creepster&family=Fredoka:wght@400;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Mountains+of+Christmas:wght@700&family=Outfit:wght@300;400;600;800&family=Russo+One&family=Spectral:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
-    <link rel="stylesheet" href="themes.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="themes.css?v=8">
 </head>
 <body>
     <header class="hero-banner">
@@ -99,6 +99,20 @@
             </div>
         </section>
 
+        <!-- Time-character media gallery: all media captured this 15-min quadrant -->
+        <section id="gallery-section" class="gallery-section glass-panel">
+            <div class="gallery-header">
+                <h2>Memory Gallery</h2>
+                <p class="gallery-subtitle" id="gallery-subtitle">Media captured this quadrant</p>
+            </div>
+            <div class="gallery-loader" id="gallery-loader"></div>
+            <div class="gallery-grid" id="gallery-grid"></div>
+            <div class="gallery-empty" id="gallery-empty" style="display: none;">
+                <span class="gallery-empty-icon">🗓️</span>
+                <p>No media captured for this time character yet.</p>
+            </div>
+        </section>
+
         <!-- Stage for learning stuff (Implement later) -->
         <section id="learning-stage" class="learning-stage">
             <div class="glass-panel placeholder-stage">
@@ -109,6 +123,15 @@
         </section>
     </main>
 
-    <script src="app.js?v=7"></script>
+    <!-- Fullscreen lightbox / mobile swipe viewer -->
+    <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Media viewer">
+        <button class="lightbox-close" id="lightbox-close" aria-label="Close viewer">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous">&#8249;</button>
+        <div class="lightbox-stage" id="lightbox-stage"></div>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">&#8250;</button>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
+    </div>
+
+    <script src="app.js?v=8"></script>
 </body>
 </html>

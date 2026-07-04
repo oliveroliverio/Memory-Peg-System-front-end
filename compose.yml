@@ -12,3 +12,7 @@ services:
     restart: unless-stopped
     # Use host network on Linux/Raspberry Pi so localhost:3000 works out of the box for the backend
     network_mode: "host"
+    volumes:
+      # Canonical DataLake — mounted read-only so the gallery index/watcher can
+      # see captured media at the same path the app defaults to.
+      - /home/olivero54/DATALAKE:/home/olivero54/DATALAKE:ro
