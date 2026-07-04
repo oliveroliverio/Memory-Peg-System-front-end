@@ -6,15 +6,30 @@
     <title>Memory Peg System</title>
     <meta name="description" content="A simple mobile friendly frontend for the Memory Peg System.">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Creepster&family=Fredoka:wght@400;600;700&family=Lora:ital,wght@0,400;0,700;1,400&family=Mountains+of+Christmas:wght@700&family=Outfit:wght@300;400;600;800&family=Russo+One&family=Spectral:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=8">
-    <link rel="stylesheet" href="themes.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="themes.css?v=9">
 </head>
 <body>
     <header class="hero-banner">
         <div class="banner-overlay"></div>
         <img src="banner.png" alt="Memory Palace Banner" class="banner-img">
+
+        <!-- Time-travel swipe gesture surface: invisible CSS scroll-snap track.
+             Captures native inertial swipe/trackpad scroll anywhere on the banner;
+             visible content lives in .banner-content below and is re-rendered on settle. -->
+        <div class="tt-track" id="tt-track" aria-hidden="true">
+            <div class="tt-pane" id="tt-pane-prev"></div>
+            <div class="tt-pane" id="tt-pane-current"></div>
+            <div class="tt-pane tt-pane-disabled" id="tt-pane-next"></div>
+        </div>
+
+        <button class="tt-arrow tt-arrow-prev" id="tt-prev-btn" aria-label="Travel back one quadrant">&#8249;</button>
+        <button class="tt-arrow tt-arrow-next" id="tt-next-btn" aria-label="Travel forward one quadrant" disabled>&#8250;</button>
+        <button class="tt-return-btn" id="tt-return-btn" style="display: none;">&#8635; Return to Present</button>
+
         <div class="banner-content">
             <h1 id="banner-title">Memory Peg System</h1>
+            <p class="tt-hint" aria-hidden="true">&#8592; swipe banner to time travel &#8594;</p>
             <div class="banner-character-context">
                 <p class="banner-adjacent prev-character">
                     <span class="adj-label">← prev</span>
@@ -57,6 +72,7 @@
                     <span id="banner-next-character"></span>
                 </p>
             </div>
+            <p id="banner-date" class="banner-date"></p>
             <p id="banner-subtitle">Your daily magical memory palace</p>
         </div>
     </header>
@@ -109,7 +125,7 @@
             <div class="gallery-grid" id="gallery-grid"></div>
             <div class="gallery-empty" id="gallery-empty" style="display: none;">
                 <span class="gallery-empty-icon">🗓️</span>
-                <p>No media captured for this time character yet.</p>
+                <p>No memories captured during this time.</p>
             </div>
         </section>
 
@@ -132,6 +148,6 @@
         <div class="lightbox-counter" id="lightbox-counter"></div>
     </div>
 
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
 </body>
 </html>

@@ -665,3 +665,136 @@ h2 {
     }
 }
 
+/* ── Time Travel: swipe gesture track ───────────────────────────────────── */
+
+/* Invisible 3-pane CSS scroll-snap strip layered over the whole banner.
+   Captures native inertial swipe/trackpad scroll; carries no visible content
+   itself — .banner-content (painted below in stacking order) is what the
+   user actually sees, updated in place when a swipe settles. */
+.tt-track {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-y;
+    scrollbar-width: none;
+}
+
+.tt-track::-webkit-scrollbar {
+    display: none;
+}
+
+.tt-pane {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+}
+
+/* Collapsed when there is nowhere further to go (future edge at live quadrant) —
+   the scrollable content simply ends here, so the browser's native rubber-band
+   bounce fires on overscroll instead of us reimplementing spring physics. */
+.tt-pane.tt-pane-disabled {
+    flex: 0 0 0;
+    width: 0;
+}
+
+.tt-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 6;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(15, 23, 42, 0.35);
+    color: #fff;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.55;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.tt-arrow:hover {
+    background: rgba(139, 92, 246, 0.45);
+    opacity: 1;
+}
+
+.tt-arrow:disabled {
+    opacity: 0.12;
+    cursor: default;
+    pointer-events: none;
+}
+
+.tt-arrow-prev { left: 0.6rem; }
+.tt-arrow-next { right: 0.6rem; }
+
+/* Small discoverability hint — fades out on its own, non-interactive */
+.tt-hint {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 0.03em;
+    margin-top: -0.15rem;
+    margin-bottom: 0.2rem;
+    pointer-events: none;
+    animation: hintFade 7s ease forwards;
+}
+
+@keyframes hintFade {
+    0%, 25% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.banner-date {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.04em;
+    margin-top: 0.1rem;
+}
+
+.tt-return-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 0.8rem;
+    transform: translateX(-50%);
+    z-index: 7;
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px var(--clock-active);
+    animation: fadeInUp 0.3s ease-out;
+    white-space: nowrap;
+}
+
+.tt-return-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* Metadata swap gives a brief opacity dip instead of an abrupt jump-cut */
+.banner-content.tt-updating #banner-title,
+.banner-content.tt-updating #banner-time-character,
+.banner-content.tt-updating #banner-date,
+.banner-content.tt-updating #banner-subtitle {
+    transition: opacity 0.15s ease;
+    opacity: 0.3;
+}
+
+@media (max-width: 640px) {
+    .tt-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 1.3rem;
+    }
+}
+
