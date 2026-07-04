@@ -7,54 +7,35 @@
 Extend the Memory Peg System so each **time_character** automatically
 displays all media captured during its corresponding 15-minute interval.
 
-Initially support:
-
--   Images
--   Videos (Phase 2)
--   Text documents (Phase 3)
-
-The gallery should work regardless of where the DataLake is stored.
+The Raspberry Pi 5 is the canonical host for the DataLake.
 
 ------------------------------------------------------------------------
 
-# DataLake Storage
+# Canonical DataLake Location
 
-The system **must not assume a single local folder**.
+**Primary DataLake**
 
-Instead, DataLake locations are configurable.
-
-Supported sources:
-
--   Local filesystem
--   Synology Drive
--   Google Drive
-
-Configuration example:
-
-``` json
-{
-  "dataLakeSources": [
-    {
-      "id": "local",
-      "type": "filesystem",
-      "path": "/mnt/datalake"
-    },
-    {
-      "id": "synology",
-      "type": "filesystem",
-      "path": "/Volumes/SynologyDrive/DataLake"
-    },
-    {
-      "id": "google",
-      "type": "filesystem",
-      "path": "/Users/Oliver/Library/CloudStorage/GoogleDrive/DataLake"
-    }
-  ]
-}
+``` text
+/home/olivero54/DATALAKE
 ```
 
-Future connector support may include native Synology and Google Drive
-APIs.
+This directory is the single source of truth for all captured artifacts.
+
+All backend services, gallery APIs, indexers, and future AI processing
+should reference this location by default.
+
+------------------------------------------------------------------------
+
+# Directory Layout
+
+``` text
+/home/olivero54/DATALAKE
+├── images/
+├── videos/
+├── text/
+├── metadata/
+└── (future folders as needed)
+```
 
 ------------------------------------------------------------------------
 
@@ -62,26 +43,18 @@ APIs.
 
 Preferred filename format:
 
-    YYMMDD-HHMMSS_<number>.ext
+``` text
+YYMMDD-HHMMSS_<number>.ext
+```
 
-Examples:
+If a filename cannot be parsed:
 
-    260703-110521_1.png
-    260703-111116_11.png
-
-If parsing fails:
-
-1.  filesystem creation time
-2.  filesystem modification time
+1.  Use filesystem creation time.
+2.  Fall back to modification time.
 
 ------------------------------------------------------------------------
 
-# Media Discovery
-
-Aggregate files from **every configured DataLake source** into a single
-logical collection.
-
-Supported formats:
+# Supported Media
 
 ## Phase 1
 
@@ -109,22 +82,24 @@ Supported formats:
 
 # Indexing
 
-Do **not** recursively scan every request.
+Maintain a metadata index instead of rescanning the filesystem on every
+request.
 
-Maintain a metadata index.
+Each indexed record contains:
 
-Each record contains:
-
--   sourceId
 -   absolutePath
 -   relativePath
 -   timestamp
 -   mediaType
 -   extension
 -   filesize
--   hash (future)
+-   optional hash
 
-Use file watchers (e.g. chokidar) for filesystem sources.
+Use a filesystem watcher (e.g. chokidar) to detect changes under:
+
+``` text
+/home/olivero54/DATALAKE
+```
 
 ------------------------------------------------------------------------
 
@@ -133,32 +108,35 @@ Use file watchers (e.g. chokidar) for filesystem sources.
 Reuse the existing Memory Peg scheduler.
 
     time_character
-        ↓
+          ↓
     intervalStart
     intervalEnd
-        ↓
-    timestamp lookup
+          ↓
+    asset timestamp
 
-Return every asset where:
+Include assets where:
 
-    intervalStart <= timestamp < intervalEnd
+``` text
+intervalStart <= timestamp < intervalEnd
+```
 
 ------------------------------------------------------------------------
 
 # Backend API
 
-    GET /api/gallery/:date/:timeCharacter
+``` http
+GET /api/gallery/:date/:timeCharacter
+```
 
-Returns chronological assets across every configured DataLake.
+Returns all assets for the requested interval sorted chronologically.
 
 ------------------------------------------------------------------------
 
 # Desktop UX
 
--   Responsive gallery
+-   Responsive gallery grid
 -   Lazy loading
--   Click thumbnail
--   Fullscreen lightbox
+-   Click thumbnail → fullscreen lightbox
 -   Keyboard navigation
 
 ------------------------------------------------------------------------
@@ -166,48 +144,36 @@ Returns chronological assets across every configured DataLake.
 # Mobile UX
 
 -   Display first image
--   Tap to open viewer
--   Swipe through gallery
--   Pinch zoom (future)
+-   Tap to open fullscreen viewer
+-   Swipe through remaining assets
+-   Future: pinch-to-zoom
 
 ------------------------------------------------------------------------
 
-# Architecture
+# Future Architecture
 
-    Memory Peg Frontend
-            │
-    Gallery Component
-            │
-    Gallery API
-            │
-    Metadata Index
-            │
-    Filesystem Aggregator
-       ├── Local
-       ├── Synology Drive
-       └── Google Drive
+The current implementation targets the local Raspberry Pi DataLake.
 
-------------------------------------------------------------------------
+Future versions may support additional providers (Synology, Google
+Drive, S3, Dropbox, etc.) behind a common provider abstraction, but
+**the current implementation should assume the canonical DataLake is
+located at**:
 
-# Future Enhancements
+``` text
+/home/olivero54/DATALAKE
+```
 
--   OCR search
--   Semantic search
--   Video thumbnails
--   Mixed media timeline
--   AI-generated summaries
--   Flashcards
--   Review mode
+This simplifies implementation and avoids unnecessary storage
+abstraction until additional providers are required.
 
 ------------------------------------------------------------------------
 
 # Acceptance Criteria
 
--   Supports multiple DataLake roots
--   Aggregates results transparently
--   Filename parsing with fallback
--   Correct interval matching
--   Desktop gallery
+-   Reads media from `/home/olivero54/DATALAKE`
+-   Correct timestamp parsing and fallback
+-   Correct 15-minute interval matching
+-   Desktop gallery/lightbox
 -   Mobile swipe viewer
 -   Chronological ordering
--   Easily extensible to cloud connectors
+-   Extensible architecture for future storage providers
