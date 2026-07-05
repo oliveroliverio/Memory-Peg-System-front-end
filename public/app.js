@@ -94,12 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Dynamic theme switching
         if (data.dayTheme && data.dayTheme.theme) {
-            const themeClass = 'theme-' + data.dayTheme.theme.toLowerCase().replace(/\s+/g, '-');
-            document.body.className = document.body.className
-                .split(' ')
-                .filter(c => !c.startsWith('theme-'))
-                .join(' ');
-            document.body.classList.add(themeClass);
+            currentBackendTheme = data.dayTheme.theme;
+            applyThemeFromSelect(currentBackendTheme);
         }
 
         // Time card
@@ -512,9 +508,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedEpochMs = null;
     let isLive = true;
     let nextRefreshTimer = null;
+    let currentBackendTheme = '';
 
     function floorToQuadrant(ms) {
         return Math.floor(ms / QUADRANT_MS) * QUADRANT_MS;
+    }
+
+    function applyThemeFromSelect(backendThemeName) {
+        const themeSelectEl = document.getElementById('theme-select');
+        const selectedThemeOverride = themeSelectEl ? themeSelectEl.value : 'auto';
+        let themeToApply = backendThemeName;
+        if (selectedThemeOverride && selectedThemeOverride !== 'auto') {
+            themeToApply = selectedThemeOverride;
+        }
+        
+        if (themeToApply) {
+            const themeClass = 'theme-' + themeToApply.toLowerCase().replace(/\s+/g, '-');
+            document.body.className = document.body.className
+                .split(' ')
+                .filter(c => !c.startsWith('theme-'))
+                .join(' ');
+            document.body.classList.add(themeClass);
+        }
     }
 
     function cacheSet(epochMs, payload) {
@@ -668,6 +683,20 @@ document.addEventListener('DOMContentLoaded', () => {
             refreshAtQuadrant();
         }
     });
+
+    // ── Theme Selector Initializer ───────────────────────────────────────────
+    const themeSelect = document.getElementById('theme-select');
+    const savedTheme = localStorage.getItem('themeOverride');
+    if (savedTheme && themeSelect) {
+        themeSelect.value = savedTheme;
+    }
+    if (themeSelect) {
+        themeSelect.addEventListener('change', () => {
+            const val = themeSelect.value;
+            localStorage.setItem('themeOverride', val);
+            applyThemeFromSelect(currentBackendTheme);
+        });
+    }
 
     // ── Initial load ──────────────────────────────────────────────────────────
     centerTrack();

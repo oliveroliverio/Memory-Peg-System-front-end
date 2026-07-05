@@ -14,6 +14,20 @@
         <div class="banner-overlay"></div>
         <img src="banner.png" alt="Memory Palace Banner" class="banner-img">
 
+        <div class="theme-selector-container">
+            <label for="theme-select" class="theme-select-label">Theme</label>
+            <select id="theme-select" class="theme-select" aria-label="Select day theme">
+                <option value="auto">Auto</option>
+                <option value="easter">Easter</option>
+                <option value="independence-day">Independence Day</option>
+                <option value="edc">EDC Neon</option>
+                <option value="thanksgiving">Thanksgiving</option>
+                <option value="lunar-new-year">Lunar New Year</option>
+                <option value="halloween">Halloween</option>
+                <option value="christmas">Christmas</option>
+            </select>
+        </div>
+
         <!-- Time-travel swipe gesture surface: invisible CSS scroll-snap track.
              Captures native inertial swipe/trackpad scroll anywhere on the banner;
              visible content lives in .banner-content below and is re-rendered on settle. -->
@@ -25,7 +39,6 @@
 
         <button class="tt-arrow tt-arrow-prev" id="tt-prev-btn" aria-label="Travel back one quadrant">&#8249;</button>
         <button class="tt-arrow tt-arrow-next" id="tt-next-btn" aria-label="Travel forward one quadrant" disabled>&#8250;</button>
-        <button class="tt-return-btn" id="tt-return-btn" style="display: none;">&#8635; Return to Present</button>
 
         <div class="banner-content">
             <h1 id="banner-title">Memory Peg System</h1>
@@ -74,6 +87,7 @@
             </div>
             <p id="banner-date" class="banner-date"></p>
             <p id="banner-subtitle">Your daily magical memory palace</p>
+            <button class="tt-return-btn" id="tt-return-btn" style="display: none;">&#8635; Return to Present</button>
         </div>
     </header>
 
