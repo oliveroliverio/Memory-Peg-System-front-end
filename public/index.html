@@ -87,6 +87,11 @@
             </div>
             <p id="banner-date" class="banner-date"></p>
             <p id="banner-subtitle">Your daily magical memory palace</p>
+            <div class="thought-id-action">
+                <button class="thought-id-btn" id="copy-thought-id-btn" aria-label="Copy timestamped thought ID anchor to clipboard">
+                    <span class="btn-icon">📌</span> Copy Thought ID
+                </button>
+            </div>
             <button class="tt-return-btn" id="tt-return-btn" style="display: none;">&#8635; Return to Present</button>
         </div>
     </header>
@@ -162,6 +167,31 @@
         <div class="lightbox-counter" id="lightbox-counter"></div>
         <div class="lightbox-hint" id="lightbox-hint" aria-hidden="true">pinch or scroll to zoom &middot; double-tap to reset</div>
     </div>
+
+    <!-- Thought ID Location Modal -->
+    <div class="thought-modal-overlay" id="thought-id-modal" style="display: none;" aria-hidden="true" role="dialog" aria-labelledby="thought-modal-title">
+        <div class="thought-modal-card glass-panel">
+            <h3 id="thought-modal-title" class="thought-modal-title">Anchor Thought ID</h3>
+            <p class="thought-modal-desc">Enter your current location to generate a timestamped memory anchor for your notes or journal.</p>
+            <form id="thought-id-form">
+                <div class="input-group">
+                    <label for="thought-location-input" class="thought-input-label">Current Location</label>
+                    <input type="text" id="thought-location-input" class="thought-input" placeholder="e.g. home_office, kitchen, desk" required autocomplete="off">
+                </div>
+                <div class="thought-modal-preview">
+                    <span class="preview-label">Preview:</span>
+                    <code id="thought-id-preview" class="thought-preview-code">YYMMDD-HHMMSS_location</code>
+                </div>
+                <div class="thought-modal-actions">
+                    <button type="button" class="modal-btn modal-btn-secondary" id="thought-modal-cancel">Cancel</button>
+                    <button type="submit" class="modal-btn modal-btn-primary" id="thought-modal-submit">Copy Anchor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
     <script src="app.js?v=10"></script>
 </body>

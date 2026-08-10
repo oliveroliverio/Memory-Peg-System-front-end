@@ -41,4 +41,17 @@ npm run start
 ```
 3. Open `http://localhost:8080` in your browser.
 
-## 
+## Production / Docker Deployment
+
+To deploy on a Raspberry Pi or server using Docker Compose:
+
+```bash
+# 1. Start containers
+docker compose up -d --build
+
+# 2. Redeploy after making or pulling code changes:
+git pull
+docker compose up -d --build
+```
+
+Detailed deployment documentation is available in [@Docs/Raspberry-Pi-Deployment.md](file:///home/olivero54/DV/Memory-Peg-System-front-end/@Docs/Raspberry-Pi-Deployment.md).

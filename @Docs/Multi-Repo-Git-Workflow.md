@@ -39,12 +39,12 @@ mem diff                # diff in both
 After pushing from your Mac, SSH into the Pi and run:
 
 ```bash
-for r in ~/Memory-Peg-System ~/Memory-Peg-System-front-end; do git -C $r pull; done && pm2 restart memory-peg-backend memory-peg-frontend
+for r in ~/Memory-Peg-System ~/Memory-Peg-System-front-end; do (cd $r && git pull && docker compose up -d --build); done
 ```
 
-- Pulls both repos sequentially
-- Restarts both pm2 processes in one command
-- `pm2 restart` accepts multiple names space-separated
+- Pulls latest code for both repositories sequentially
+- Rebuilds Docker container images with `--build`
+- Restarts updated containers in detached background mode (`-d`)
 
 ---
 

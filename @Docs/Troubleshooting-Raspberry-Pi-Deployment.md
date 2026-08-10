@@ -1,64 +1,49 @@
 # Troubleshooting Raspberry Pi Deployment
 
-This document outlines the troubleshooting steps taken to resolve a series of issues encountered when attempting to run both the frontend and backend 24/7 on a Raspberry Pi using PM2.
-
-## The Issues
-
-1. **Frontend Crashing (Missing Dependency):** The frontend PM2 instance was crashing on startup because it was trying to load the `dotenv` package (added recently to support environment variables), but `npm install` had not been run after the code was pulled.
-2. **"Failed to load data" (IPv6 Localhost Bug):** The frontend was unable to fetch data from the backend because the `.env` file pointed to `http://localhost:3000`. In Node 18+, `localhost` defaults to IPv6 (`::1`), but the backend was explicitly listening on IPv4 (`0.0.0.0`), causing connection refusals.
-3. **Serving Stale Data (Port Hogging):** Once the frontend finally connected, it returned old backend data (returning `weekCharacter` instead of the newly refactored `weekCreature`). This occurred because an old `systemd` service of the backend was still running in the background and holding port 3000 hostage. When PM2 tried to start the *new* backend on port 3000, it failed silently and went into a 100% CPU crash loop, leaving the frontend talking to the old `systemd` service.
+This document outlines troubleshooting steps and solutions for running the frontend and backend 24/7 on a Raspberry Pi using Docker Compose.
 
 ---
 
-## Step-by-Step Resolution
+## Common Issues & Solutions
 
-### 1. Fix the Node.js IPv6 Localhost Bug
-To ensure the frontend communicates with the backend over IPv4 (which is what `0.0.0.0` listens on), change the `BACKEND_URL` in the frontend's `.env` file from `localhost` to the explicit IPv4 address:
+### 1. "Failed to load data" (IPv6 / Host Networking Resolution)
+- **Symptom:** The frontend proxy fails to fetch data from backend server at `http://localhost:3000`.
+- **Cause:** Node.js 18+ resolves `localhost` to IPv6 (`::1`), whereas backend servers may listen exclusively on IPv4 (`0.0.0.0` or `127.0.0.1`).
+- **Solution:** 
+  In `compose.yml`, ensure `network_mode: "host"` is enabled so the container shares the Pi host's network interface directly, and set `BACKEND_URL=http://localhost:3000` or `http://127.0.0.1:3000`.
 
-```bash
-# In ~/Memory-Peg-System-front-end/.env
-BACKEND_URL=http://127.0.0.1:3000
-```
+### 2. Code Changes Not Updating (Stale Docker Container)
+- **Symptom:** You ran `git pull`, but the website still displays the old version.
+- **Cause:** Running `docker compose up -d` without `--build` reuses the old compiled container image.
+- **Solution:** Always include `--build` when redeploying after pulling code:
+  ```bash
+  git pull && docker compose up -d --build
+  ```
 
-### 2. Identify and Kill the Rogue Background Service
-To find out what was holding port 3000 hostage (the old `systemd` service), we used the `ss` command:
+### 3. Identifying Rogue Port Conflicts
+- **Symptom:** Docker fails to start container because port `8080` or `3000` is already in use.
+- **Solution:** Use `ss` or `lsof` to find what process is binding the port:
+  ```bash
+  sudo ss -lptn 'sport = :8080'
+  ```
+  Identify the PID (e.g. `pid=1234`) and stop/kill the rogue process:
+  ```bash
+  sudo kill -9 1234
+  ```
 
-```bash
-sudo ss -lptn 'sport = :3000'
-```
+---
 
-**Example Output:**
-```
-State     Recv-Q    Send-Q       Local Address:Port        Peer Address:Port    Process
-LISTEN    0         511                0.0.0.0:3000             0.0.0.0:*        users:(("node",pid=29714,fd=18))
-```
-
-*Note: Be careful not to confuse the `Send-Q` (e.g., 511) with the actual Process ID. The true Process ID is listed at the very end as `pid=29714`.*
-
-Once the correct PID was identified, we forcefully killed the rogue process to free up port 3000:
-```bash
-sudo kill -9 29714
-```
-
-### 3. Update the Code and Restart PM2
-With the port finally free, we ensured the backend had the latest mythical creature code by pulling from GitHub, and then allowed PM2 to properly take over.
+## Complete Verification & Redeploy Workflow
 
 ```bash
-# Update the backend code
-cd ~/Memory-Peg-System
-git pull
-npm install
-
-# Restart the backend PM2 instance
-pm2 restart memory-peg-backend
-
-# Update the frontend code
+# Update repository
 cd ~/Memory-Peg-System-front-end
 git pull
-npm install
 
-# Restart the frontend PM2 instance
-pm2 restart memory-peg-frontend
+# Rebuild image & restart container
+docker compose up -d --build
+
+# Verify container health & logs
+docker compose ps
+docker compose logs -f memory-peg-frontend
 ```
-
-After these steps, the frontend successfully connected to the correct, newly-updated PM2 backend on `127.0.0.1:3000`, and the iPhone immediately displayed the correct mythical creature data!

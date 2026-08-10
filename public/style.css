@@ -883,3 +883,263 @@ h2 {
     color: #fff;
 }
 
+/* ── Thought ID Action Button ────────────────────────────────────────── */
+.thought-id-action {
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    justify-content: center;
+}
+
+.thought-id-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(139, 92, 246, 0.2);
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    color: var(--text-light);
+    font-family: var(--title-font), sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.thought-id-btn:hover {
+    background: rgba(139, 92, 246, 0.35);
+    border-color: rgba(196, 181, 253, 0.7);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.thought-id-btn:active {
+    transform: translateY(0);
+}
+
+.thought-id-btn.copied {
+    background: rgba(34, 197, 94, 0.25);
+    border-color: rgba(74, 222, 128, 0.7);
+    color: #86efac;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+}
+
+.thought-id-btn .btn-icon {
+    font-size: 0.95rem;
+}
+
+/* ── Thought ID Modal Dialog ─────────────────────────────────────────── */
+.thought-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.thought-modal-card {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.thought-modal-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.2rem;
+    color: #f8fafc;
+}
+
+.thought-modal-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.thought-input-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.thought-input {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem;
+    color: #f8fafc;
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.thought-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+.thought-modal-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.4rem;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    overflow-x: auto;
+}
+
+.preview-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.thought-preview-code {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #a7f3d0;
+    white-space: nowrap;
+}
+
+.thought-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.modal-btn {
+    padding: 0.55rem 1.1rem;
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.modal-btn-secondary {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--text-muted);
+}
+
+.modal-btn-secondary:hover {
+    background: rgba(148, 163, 184, 0.25);
+    color: var(--text-light);
+}
+
+.modal-btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.modal-btn-primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.45);
+}
+
+/* ── Toast Notifications ─────────────────────────────────────────────── */
+.toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+
+.toast-message {
+    pointer-events: auto;
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 4px solid var(--primary-color);
+    color: #f8fafc;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 360px;
+    animation: slideInRight 0.3s ease-out;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast-message.success {
+    border-left-color: #22c55e;
+}
+
+.toast-message.error {
+    border-left-color: #ef4444;
+}
+
+.toast-message .toast-code {
+    font-family: monospace;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.25rem;
+    color: #86efac;
+    font-size: 0.8rem;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+

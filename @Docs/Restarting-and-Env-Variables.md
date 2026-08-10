@@ -1,39 +1,39 @@
 # Restarting Node Servers and Using Environment Variables
 
-When you make changes to backend code (like `server.js`) or configuration files (like `.env`), you **must** restart the server for the changes to take effect. If you only modify frontend static files (like HTML, CSS, or client-side JavaScript in the `public` folder), a simple browser refresh is all that is needed.
+When you make changes to backend code (like `server.js`), configuration files (like `.env`), or `compose.yml`, you **must** rebuild or restart the container for changes to take effect. If you only modify client-side files during local development without Docker, a simple browser refresh is needed. In Docker production deployments, rebuilding the image is required.
 
-## Issue Encountered
-The user modified the `.env` file to set `BACKEND_URL='100.88.124.124:3000'` but didn't know if a restart was necessary. Furthermore, the URL was missing the `http://` protocol, which causes the `fetch` API in Node.js to throw a "Failed to parse URL" error, and `dotenv` was not installed, meaning Node.js wouldn't natively load the `.env` file without a specific CLI flag.
+## Environment Variable Setup
 
-## Solution
-
-### 1. Formatting the URL correctly
-Any URL passed to `fetch` must include a valid protocol. The `.env` file was corrected to:
+### 1. Formatting the Backend URL Correctly
+Any URL passed to `fetch` must include a valid protocol (`http://` or `https://`):
 ```bash
-BACKEND_URL='http://100.88.124.124:3000'
+BACKEND_URL='http://127.0.0.1:3000'
 ```
 
-### 2. Loading the `.env` file
-We installed the `dotenv` package so the server automatically loads variables from the `.env` file without needing custom command-line flags.
-```bash
-npm install dotenv
-```
-And added this line to the top of `server.js`:
+### 2. Loading `.env` in Node.js
+The project uses `dotenv` to load `.env` variables automatically:
 ```javascript
 require('dotenv').config();
 ```
 
-### 3. How to Restart the Server
-Since changes were made to `.env` and `server.js`, a restart is required.
+---
 
-**If running locally on your Mac:**
-Stop the server by pressing `Ctrl + C` in the terminal, then start it again:
+## How to Restart / Redeploy the Server
+
+### Local Development (without Docker)
+Stop the local Node process with `Ctrl + C` in your terminal, then start it:
 ```bash
 npm run start
 ```
 
-**If running on your Raspberry Pi with PM2:**
-Run the following command on the Raspberry Pi:
+### Production Deployment on Raspberry Pi (with Docker)
+When running on the Pi under Docker Compose:
+
 ```bash
-pm2 restart memory-peg-frontend
+# Redeploy after pulling or editing code:
+git pull
+docker compose up -d --build
+
+# Quick restart without rebuilding code:
+docker compose restart memory-peg-frontend
 ```

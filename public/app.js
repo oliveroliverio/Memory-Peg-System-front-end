@@ -698,6 +698,171 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ── Thought ID & Clipboard Anchor Feature ────────────────────────────────
+    const copyThoughtIdBtn = document.getElementById('copy-thought-id-btn');
+    const thoughtIdModal = document.getElementById('thought-id-modal');
+    const thoughtIdForm = document.getElementById('thought-id-form');
+    const thoughtLocationInput = document.getElementById('thought-location-input');
+    const thoughtIdPreview = document.getElementById('thought-id-preview');
+    const thoughtModalCancel = document.getElementById('thought-modal-cancel');
+
+    /** Format date object and location string into YYMMDD-HHMMSS_<current_location> */
+    function formatThoughtId(locationStr, now = new Date()) {
+        const yy = String(now.getFullYear()).slice(-2);
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+
+        const cleanLocation = (locationStr || 'location')
+            .trim()
+            .replace(/\s+/g, '_');
+
+        return `${yy}${mm}${dd}-${hh}${min}${ss}_${cleanLocation}`;
+    }
+
+    /** Copy text to clipboard with navigator.clipboard and execCommand fallback */
+    async function copyTextToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (err) {
+                console.warn('[Clipboard API] Failed, using fallback:', err);
+            }
+        }
+        // Fallback for non-secure HTTP contexts or older webviews
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '-9999px';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        let success = false;
+        try {
+            success = document.execCommand('copy');
+        } catch (err) {
+            console.error('[Clipboard Fallback] execCommand failed:', err);
+        }
+        document.body.removeChild(textArea);
+        return success;
+    }
+
+    /** Toast notification helper */
+    function showToast(message, type = 'success', thoughtId = '') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast-message ${type}`;
+
+        let html = `<span>${message}</span>`;
+        if (thoughtId) {
+            html += `<code class="toast-code">${thoughtId}</code>`;
+        }
+        toast.innerHTML = html;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(30px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    }
+
+    function updateThoughtPreview() {
+        if (!thoughtIdPreview || !thoughtLocationInput) return;
+        const loc = thoughtLocationInput.value || 'location';
+        thoughtIdPreview.textContent = formatThoughtId(loc);
+    }
+
+    function openThoughtModal() {
+        if (!thoughtIdModal) return;
+        const savedLocation = localStorage.getItem('last_thought_location') || '';
+        if (thoughtLocationInput) {
+            thoughtLocationInput.value = savedLocation;
+        }
+        updateThoughtPreview();
+        thoughtIdModal.style.display = 'flex';
+        thoughtIdModal.setAttribute('aria-hidden', 'false');
+
+        setTimeout(() => {
+            if (thoughtLocationInput) {
+                thoughtLocationInput.focus();
+                thoughtLocationInput.select();
+            }
+        }, 50);
+    }
+
+    function closeThoughtModal() {
+        if (!thoughtIdModal) return;
+        thoughtIdModal.style.display = 'none';
+        thoughtIdModal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (copyThoughtIdBtn) {
+        copyThoughtIdBtn.addEventListener('click', () => {
+            openThoughtModal();
+        });
+    }
+
+    if (thoughtLocationInput) {
+        thoughtLocationInput.addEventListener('input', updateThoughtPreview);
+    }
+
+    if (thoughtModalCancel) {
+        thoughtModalCancel.addEventListener('click', closeThoughtModal);
+    }
+
+    if (thoughtIdModal) {
+        thoughtIdModal.addEventListener('click', (e) => {
+            if (e.target === thoughtIdModal) {
+                closeThoughtModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && thoughtIdModal && thoughtIdModal.style.display === 'flex') {
+            closeThoughtModal();
+        }
+    });
+
+    if (thoughtIdForm) {
+        thoughtIdForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const locationInput = thoughtLocationInput ? thoughtLocationInput.value : '';
+            const thoughtId = formatThoughtId(locationInput);
+
+            // Save location for quick re-use
+            if (locationInput.trim()) {
+                localStorage.setItem('last_thought_location', locationInput.trim());
+            }
+
+            closeThoughtModal();
+
+            const success = await copyTextToClipboard(thoughtId);
+            if (success) {
+                showToast('Copied Thought ID to clipboard:', 'success', thoughtId);
+
+                // Button visual feedback
+                if (copyThoughtIdBtn) {
+                    const originalHtml = copyThoughtIdBtn.innerHTML;
+                    copyThoughtIdBtn.classList.add('copied');
+                    copyThoughtIdBtn.innerHTML = `<span class="btn-icon">✓</span> Copied Anchor!`;
+                    setTimeout(() => {
+                        copyThoughtIdBtn.classList.remove('copied');
+                        copyThoughtIdBtn.innerHTML = originalHtml;
+                    }, 2500);
+                }
+            } else {
+                showToast('Could not access clipboard automatically.', 'error');
+            }
+        });
+    }
+
     // ── Initial load ──────────────────────────────────────────────────────────
     centerTrack();
     showQuadrant(floorToQuadrant(Date.now()), { isInitial: true }).then(scheduleNextRefresh);
