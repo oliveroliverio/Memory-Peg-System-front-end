@@ -736,11 +736,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const textArea = document.createElement('textarea');
         textArea.value = text;
         textArea.style.position = 'fixed';
-        textArea.style.top = '-9999px';
-        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        textArea.style.opacity = '0.01';
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
+        if (textArea.setSelectionRange) {
+            textArea.setSelectionRange(0, 99999);
+        }
         let success = false;
         try {
             success = document.execCommand('copy');
@@ -779,21 +790,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openThoughtModal() {
-        if (!thoughtIdModal) return;
         const savedLocation = localStorage.getItem('last_thought_location') || '';
-        if (thoughtLocationInput) {
-            thoughtLocationInput.value = savedLocation;
-        }
-        updateThoughtPreview();
-        thoughtIdModal.style.display = 'flex';
-        thoughtIdModal.setAttribute('aria-hidden', 'false');
-
-        setTimeout(() => {
+        if (thoughtIdModal) {
             if (thoughtLocationInput) {
-                thoughtLocationInput.focus();
-                thoughtLocationInput.select();
+                thoughtLocationInput.value = savedLocation;
             }
-        }, 50);
+            updateThoughtPreview();
+            thoughtIdModal.style.display = 'flex';
+            thoughtIdModal.setAttribute('aria-hidden', 'false');
+
+            setTimeout(() => {
+                if (thoughtLocationInput) {
+                    thoughtLocationInput.focus();
+                    thoughtLocationInput.select();
+                }
+            }, 50);
+        } else {
+            // Fallback to window.prompt if modal element is missing
+            const loc = window.prompt('Enter current location:', savedLocation);
+            if (loc !== null) {
+                const thoughtId = formatThoughtId(loc);
+                if (loc.trim()) {
+                    localStorage.setItem('last_thought_location', loc.trim());
+                }
+                copyTextToClipboard(thoughtId).then((success) => {
+                    if (success) {
+                        showToast('Copied Thought ID to clipboard:', 'success', thoughtId);
+                    } else {
+                        showToast('Could not access clipboard automatically.', 'error');
+                    }
+                });
+            }
+        }
     }
 
     function closeThoughtModal() {
@@ -803,9 +831,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (copyThoughtIdBtn) {
-        copyThoughtIdBtn.addEventListener('click', () => {
+        console.log('[Thought ID] Registered click listener on #copy-thought-id-btn');
+        copyThoughtIdBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log('%c[Thought ID] Copy Thought ID Button Clicked!', 'color: #3b82f6; font-weight: bold;');
             openThoughtModal();
         });
+    } else {
+        console.warn('[Thought ID] Button element #copy-thought-id-btn not found');
     }
 
     if (thoughtLocationInput) {
@@ -836,6 +869,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const locationInput = thoughtLocationInput ? thoughtLocationInput.value : '';
             const thoughtId = formatThoughtId(locationInput);
 
+            console.log('%c[Thought ID Generated]', 'color: #8b5cf6; font-weight: bold; font-size: 14px;', thoughtId);
+            console.log('Thought ID content:', thoughtId);
+
             // Save location for quick re-use
             if (locationInput.trim()) {
                 localStorage.setItem('last_thought_location', locationInput.trim());
@@ -845,6 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const success = await copyTextToClipboard(thoughtId);
             if (success) {
+                console.log('%c[Clipboard] Successfully copied thought_id to clipboard!', 'color: #22c55e; font-weight: bold;', thoughtId);
                 showToast('Copied Thought ID to clipboard:', 'success', thoughtId);
 
                 // Button visual feedback
@@ -858,6 +895,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 2500);
                 }
             } else {
+                console.warn('[Clipboard] Failed to copy automatically to clipboard:', thoughtId);
                 showToast('Could not access clipboard automatically.', 'error');
             }
         });
