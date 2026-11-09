@@ -705,9 +705,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const thoughtLocationInput = document.getElementById('thought-location-input');
     const thoughtIdPreview = document.getElementById('thought-id-preview');
     const thoughtModalCancel = document.getElementById('thought-modal-cancel');
+    const thoughtGpsCheckbox = document.getElementById('thought-gps-checkbox');
+    const thoughtGpsStatus = document.getElementById('thought-gps-status');
 
-    /** Format date object and location string into YYMMDD-HHMMSS_<current_location> */
-    function formatThoughtId(locationStr, now = new Date()) {
+    /** Format date object and location string into YYMMDD-HHMMSS_<current_location>,
+     *  optionally appending GPS coordinates when a fix is supplied. */
+    function formatThoughtId(locationStr, now = new Date(), coords = null) {
         const yy = String(now.getFullYear()).slice(-2);
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
@@ -719,7 +722,98 @@ document.addEventListener('DOMContentLoaded', () => {
             .trim()
             .replace(/\s+/g, '_');
 
-        return `${yy}${mm}${dd}-${hh}${min}${ss}_${cleanLocation}`;
+        let id = `${yy}${mm}${dd}-${hh}${min}${ss}_${cleanLocation}`;
+        if (coords) {
+            id += `_${formatCoordinates(coords.latitude, coords.longitude)}`;
+        }
+        return id;
+    }
+
+    /** N<lat>_W<lon> (or S/E as appropriate) at 5 decimals, per the user's chat-tag convention. */
+    function formatCoordinates(lat, lon) {
+        const latHemi = lat >= 0 ? 'N' : 'S';
+        const lonHemi = lon >= 0 ? 'E' : 'W';
+        return `${latHemi}${Math.abs(lat).toFixed(5)}_${lonHemi}${Math.abs(lon).toFixed(5)}`;
+    }
+
+    /** Same coordinates, comma-separated, for the human-readable status line / toast. */
+    function formatCoordinatesDisplay(lat, lon) {
+        const latHemi = lat >= 0 ? 'N' : 'S';
+        const lonHemi = lon >= 0 ? 'E' : 'W';
+        return `${latHemi}${Math.abs(lat).toFixed(5)}, ${lonHemi}${Math.abs(lon).toFixed(5)}`;
+    }
+
+    // ── GPS fix acquisition (Thought ID only; never requested on page load) ──
+    let lastKnownFix = null;   // { latitude, longitude, accuracy, atMs } — session-only, never localStorage
+    let activeFixPromise = null; // in-flight/most-recent fix attempt for the currently open modal; resolves to a fix or null, never rejects
+
+    /** Promise wrapper around getCurrentPosition. Rejects with a PositionError-shaped
+     *  object ({code}) — code 0 means "no secure context / no geolocation API". */
+    function getDevicePosition() {
+        return new Promise((resolve, reject) => {
+            if (!window.isSecureContext || !navigator.geolocation) {
+                reject({ code: 0 });
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
+                }),
+                (err) => reject(err),
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            );
+        });
+    }
+
+    function freshCachedFix() {
+        if (lastKnownFix && (Date.now() - lastKnownFix.atMs) < 60000) return lastKnownFix;
+        return null;
+    }
+
+    /** The fix to use right now, or null — honors the checkbox and the 60s cache window. */
+    function currentFixIfValid() {
+        if (!thoughtGpsCheckbox || !thoughtGpsCheckbox.checked) return null;
+        return freshCachedFix();
+    }
+
+    function mapGpsError(err) {
+        const code = err && err.code;
+        if (code === 1) return 'Location permission denied — copying without coordinates.';
+        if (code === 2 || code === 3) return 'Could not get a GPS fix — copying without coordinates.';
+        return 'GPS unavailable on this connection — copying without coordinates.';
+    }
+
+    function setGpsStatus(stateClass, text) {
+        if (!thoughtGpsStatus) return;
+        thoughtGpsStatus.textContent = text;
+        thoughtGpsStatus.className = 'thought-gps-status' + (stateClass ? ' ' + stateClass : '');
+    }
+
+    /** Kick off (or reuse the cached) GPS fix for the currently open modal.
+     *  Only called from modal-open and the checkbox's own change event — never on page load. */
+    function requestGpsFix() {
+        const cached = freshCachedFix();
+        if (cached) {
+            activeFixPromise = Promise.resolve(cached);
+            setGpsStatus('ready', `📍 ${formatCoordinatesDisplay(cached.latitude, cached.longitude)} (±${Math.round(cached.accuracy)} m)`);
+            updateThoughtPreview();
+            return;
+        }
+        setGpsStatus('locating', 'Locating…');
+        activeFixPromise = getDevicePosition()
+            .then((fix) => {
+                lastKnownFix = { ...fix, atMs: Date.now() };
+                setGpsStatus('ready', `📍 ${formatCoordinatesDisplay(fix.latitude, fix.longitude)} (±${Math.round(fix.accuracy)} m)`);
+                updateThoughtPreview();
+                return lastKnownFix;
+            })
+            .catch((err) => {
+                setGpsStatus('unavailable', mapGpsError(err));
+                updateThoughtPreview();
+                return null;
+            });
     }
 
     /** Copy text to clipboard with navigator.clipboard and execCommand fallback */
@@ -763,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /** Toast notification helper */
-    function showToast(message, type = 'success', thoughtId = '') {
+    function showToast(message, type = 'success', thoughtId = '', meta = '') {
         const toastContainer = document.getElementById('toast-container');
         if (!toastContainer) return;
         const toast = document.createElement('div');
@@ -772,6 +866,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = `<span>${message}</span>`;
         if (thoughtId) {
             html += `<code class="toast-code">${thoughtId}</code>`;
+        }
+        if (meta) {
+            html += `<span class="toast-meta">${meta}</span>`;
         }
         toast.innerHTML = html;
         toastContainer.appendChild(toast);
@@ -786,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateThoughtPreview() {
         if (!thoughtIdPreview || !thoughtLocationInput) return;
         const loc = thoughtLocationInput.value || 'location';
-        thoughtIdPreview.textContent = formatThoughtId(loc);
+        thoughtIdPreview.textContent = formatThoughtId(loc, new Date(), currentFixIfValid());
     }
 
     function openThoughtModal() {
@@ -798,6 +895,13 @@ document.addEventListener('DOMContentLoaded', () => {
             updateThoughtPreview();
             thoughtIdModal.style.display = 'flex';
             thoughtIdModal.setAttribute('aria-hidden', 'false');
+
+            // Only ever requested here, on modal open — never on page load.
+            if (thoughtGpsCheckbox && thoughtGpsCheckbox.checked) {
+                requestGpsFix();
+            } else {
+                setGpsStatus('', '');
+            }
 
             setTimeout(() => {
                 if (thoughtLocationInput) {
@@ -845,6 +949,18 @@ document.addEventListener('DOMContentLoaded', () => {
         thoughtLocationInput.addEventListener('input', updateThoughtPreview);
     }
 
+    if (thoughtGpsCheckbox) {
+        thoughtGpsCheckbox.addEventListener('change', () => {
+            if (thoughtGpsCheckbox.checked) {
+                requestGpsFix();
+            } else {
+                activeFixPromise = null;
+                setGpsStatus('', '');
+                updateThoughtPreview();
+            }
+        });
+    }
+
     if (thoughtModalCancel) {
         thoughtModalCancel.addEventListener('click', closeThoughtModal);
     }
@@ -867,7 +983,17 @@ document.addEventListener('DOMContentLoaded', () => {
         thoughtIdForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const locationInput = thoughtLocationInput ? thoughtLocationInput.value : '';
-            const thoughtId = formatThoughtId(locationInput);
+
+            // Wait for an in-flight fix (bounded by its own 10s timeout) rather than
+            // blocking indefinitely; re-check the checkbox after awaiting in case the
+            // user unchecked it while the fix was still arriving.
+            let coords = null;
+            if (thoughtGpsCheckbox && thoughtGpsCheckbox.checked) {
+                coords = activeFixPromise ? await activeFixPromise : freshCachedFix();
+                if (!thoughtGpsCheckbox.checked) coords = null;
+            }
+
+            const thoughtId = formatThoughtId(locationInput, new Date(), coords);
 
             console.log('%c[Thought ID Generated]', 'color: #8b5cf6; font-weight: bold; font-size: 14px;', thoughtId);
             console.log('Thought ID content:', thoughtId);
@@ -882,7 +1008,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const success = await copyTextToClipboard(thoughtId);
             if (success) {
                 console.log('%c[Clipboard] Successfully copied thought_id to clipboard!', 'color: #22c55e; font-weight: bold;', thoughtId);
-                showToast('Copied Thought ID to clipboard:', 'success', thoughtId);
+                console.log(`[Thought ID] copied ${thoughtId}`);
+                const accuracyText = coords && Number.isFinite(coords.accuracy) ? `±${Math.round(coords.accuracy)} m` : '';
+                showToast('Copied Thought ID to clipboard:', 'success', thoughtId, accuracyText);
 
                 // Button visual feedback
                 if (copyThoughtIdBtn) {
